@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Salt and Sorrow — Hunt the Legends. Survive the Age. | Baby Bard Games</title>
+<meta name="description" content="Salt and Sorrow, a d100 Dark Age investigation RPG by Baby Bard Games. Folkloric monsters are problems to be solved — and every answer adds to your Burden.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐺</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { --accent: #b9c0b4; }
+  .s-hero {
+    background:
+      radial-gradient(1100px 500px at 18% -10%, rgba(185, 192, 180, 0.10), transparent 60%),
+      radial-gradient(900px 480px at 95% 15%, rgba(168, 35, 42, 0.08), transparent 55%),
+      var(--bg-deep);
+    border-bottom: 1px solid var(--line);
+    padding: 74px 0;
+  }
+  .s-hero h1 {
+    font-size: clamp(38px, 6vw, 62px); letter-spacing: 6px; font-variant: small-caps;
+    color: #eff1ec; line-height: 1.1;
+  }
+  .s-hero .epithet { color: var(--accent); font-style: italic; font-size: 21px; margin: 10px 0 18px; }
+  .burden-track { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; margin-top: 30px; }
+  .burden-track .b {
+    background: var(--panel); border: 1px solid var(--line); padding: 16px; text-align: center;
+  }
+  .burden-track .b .n { color: var(--ink-dim); font-size: 12.5px; letter-spacing: 2px; }
+  .burden-track .b h3 { margin: 4px 0 6px; font-size: 17px; }
+  .burden-track .b p { font-size: 13px; color: var(--ink-dim); }
+  .burden-track .b:nth-child(4) { border-color: rgba(168,35,42,.45); }
+  .burden-track .b:nth-child(5) { border-color: rgba(168,35,42,.7); }
+  .burden-track .b:nth-child(6) { border-color: #a8232a; }
+  .phases { display: flex; flex-wrap: wrap; gap: 8px; margin: 22px 0; align-items: center; }
+  .phases .ph {
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    padding: 8px 14px; font-variant: small-caps; letter-spacing: 1.5px; font-size: 13.5px;
+  }
+  .phases .arrow { color: var(--accent); }
+  .dice-panel {
+    background: var(--panel); border: 1px solid var(--line); padding: 26px 30px; margin-top: 26px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px;
+  }
+  .dice-panel h3 { font-size: 17px; color: #e4e6df; }
+  .dice-panel p { font-size: 14.5px; color: var(--ink-dim); }
+  .divider-rune { text-align: center; color: var(--accent); opacity: .5; font-size: 15px; letter-spacing: 12px; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Salt and Sorrow">
+  <div class="bar">
+    <a class="brand" href="#stop" style="color:#b9c0b4">Salt &amp; Sorrow</a>
+    <ul>
+      <li><a class="navlink" href="#world">The World</a></li>
+      <li><a class="navlink" href="#burden">The Burden</a></li>
+      <li><a class="navlink" href="#survivors">Survivors</a></li>
+      <li><a class="navlink" href="#hunt">The Hunt</a></li>
+      <li><a class="navlink" href="#campaign">The Campaign</a></li>
+      <li><a class="navlink hot" href="index.html">← Baby Bard Games</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="s-hero" id="stop">
+  <div class="wrap cols">
+    <div>
+      <span class="chip solid">v4 · Core + Campaign</span>
+      <h1>Salt &amp; Sorrow</h1>
+      <p class="epithet">Hunt the Legends. Survive the Age.</p>
+      <p class="lede">A d100 Dark Age investigation game of moral weight and wyrd horror. The monsters of folklore are real — and every one of them is a problem to be solved, not a thing to be killed.</p>
+      <blockquote class="pull" style="margin-top:16px">You are no hero. You are a survivor — a knight without land, a hedge witch, a freed serf, a disgraced monk — scraping meaning from a brutal world.</blockquote>
+      <a class="btn" href="#burden">Feel the Burden</a>
+      <a class="btn ghost" href="#campaign">The Long Sleep</a>
+    </div>
+    <figure class="framed">
+      <img src="assets/salt-sorrow-cover.jpg" alt="Salt and Sorrow cover — cloaked warriors crossing a fen toward a stag-skulled tree-wraith, ravens overhead">
+      <figcaption>It smells like woodsmoke, wet wool, and iron.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════ WORLD ══════════════════ -->
+<section class="block" id="world">
+  <div class="wrap reveal">
+    <div class="kicker">The Setting</div>
+    <h2 class="title">The Sundered Lands</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">A between-time drawn from Anglo-Saxon, Norse, and Germanic tradition: the wreckage of an empire nobody alive remembers clearly. Roads lead to ruins. Laws cite authorities that no longer exist. Something ended, and what's next hasn't arrived.</p>
+        <p>Beneath it all runs the <b>wyrd</b> — the old, strange order that predates humanity. The sea has always been wyrd. The wood keeps what it keeps. And the two faiths wrestling for the age — the expanding <b>White Path</b> and the fading <b>Old Way</b>, which managed the wyrd world for generations — are both right about something. There is no correct side.</p>
+        <p class="dim">Gritty, but not grimdark. Dangerous, but not arbitrary. Morally complex, but never relativist.</p>
+      </div>
+      <div class="cards" style="margin-top:0; grid-template-columns: 1fr 1fr;">
+        <div class="card region-card"><h3>The Heartlands</h3><p>Settled farmland under the White Path's lengthening shadow.</p></div>
+        <div class="card region-card"><h3>The Deep Wood</h3><p>Ancient forest where the Old Way holds and time moves unreliably.</p></div>
+        <div class="card region-card"><h3>The Grey Coast</h3><p>Fishing ports where the sea is livelihood and terror in one.</p></div>
+        <div class="card region-card"><h3>The Northern Reaches</h3><p>Harsh uplands where the wyrd runs closest to the surface — and the Draugr are a practical problem.</p></div>
+        <div class="card region-card"><h3>The Borderlands</h3><p>Contested imperial ruins. No authority, maximum danger, maximum opportunity.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-rune">ᛋ ᛟ ᚱ</div>
+
+<!-- ══════════════════ BURDEN ══════════════════ -->
+<section class="block alt" id="burden">
+  <div class="wrap reveal">
+    <div class="kicker">The Signature Mechanic</div>
+    <h2 class="title">One Track Carries Everything</h2>
+    <p class="lede" style="max-width:820px">Every brutal choice adds <b>Moral Burden</b>. Every brush with the uncanny adds <b>Wyrd Burden</b>. Both land on the same 0–10 track — and the track does not care which kind broke you.</p>
+    <div class="burden-track">
+      <div class="b"><div class="n">0–2</div><h3>Clear</h3><p>You sleep. For now.</p></div>
+      <div class="b"><div class="n">3–4</div><h3>Weighted</h3><p>It shows when you speak. People notice.</p></div>
+      <div class="b"><div class="n">5–6</div><h3>Haunted</h3><p>The past starts choosing its moments.</p></div>
+      <div class="b"><div class="n">7–8</div><h3>Fractured</h3><p>Something in you stops working right.</p></div>
+      <div class="b"><div class="n">9</div><h3>Breaking</h3><p>Face what weighs on you, or freeze.</p></div>
+      <div class="b"><div class="n">10</div><h3>Broken</h3><p>The road ends here — in this state, no further.</p></div>
+    </div>
+    <p class="dim" style="margin-top:22px">Burden doesn't grind off with rest. It reduces the way it was earned — confession and restitution, cleansing rites and wardings, finishing the hunt, or time and distance. Breaking a sworn Tie inflicts Moral Burden with no resistance roll allowed. Choose your oaths carefully.</p>
+  </div>
+</section>
+
+<div class="divider-rune">ᛋ ᛟ ᚱ</div>
+
+<!-- ══════════════════ SURVIVORS ══════════════════ -->
+<section class="block" id="survivors">
+  <div class="wrap reveal">
+    <div class="kicker">Characters</div>
+    <h2 class="title">Archetypes, Not Classes</h2>
+    <p class="lede" style="max-width:820px">Ten backgrounds — Warrior, Scout, Thief, Apothecary, Scholar, Hedge Witch, Preacher, Skald, Commander, Emissary — that shape where you start, never where you're allowed to go. Beneath them: six attributes, thirty-seven percentile skills, and the Ties that hold you to the world.</p>
+    <div class="role-label" style="font-variant:small-caps; letter-spacing:4px; font-size:13.5px; color:#a8232a; margin:30px 0 4px">The Combat Schools</div>
+    <div class="cards">
+      <div class="card"><h3>The Grey Wolf School</h3><p>The patient hunter's blade.</p></div>
+      <div class="card"><h3>The Broken Crown School</h3><p>Fighting like the empire that fell.</p></div>
+      <div class="card"><h3>The Iron Saint School</h3><p>Faith, held at shield's edge.</p></div>
+      <div class="card"><h3>The Old Blood School</h3><p>The way the clans have always fought.</p></div>
+      <div class="card"><h3>The Hollow Road School</h3><p>The knife that travels quiet.</p></div>
+      <div class="card"><h3>The Long Eye School</h3><p>Death, delivered from a distance.</p></div>
+    </div>
+    <p class="dim" style="margin-top:20px">Eight more non-combat traditions — from the Herbalist's Craft to the Living Memory to the Voice of the White Road — carry their own signature abilities. Fourteen Martial Forms in all, earned by skill and triggered by brilliance.</p>
+  </div>
+</section>
+
+<div class="divider-rune">ᛋ ᛟ ᚱ</div>
+
+<!-- ══════════════════ THE HUNT ══════════════════ -->
+<section class="block alt" id="hunt">
+  <div class="wrap reveal">
+    <div class="kicker">The System</div>
+    <h2 class="title">An Investigation Game That Fights</h2>
+    <div class="phases">
+      <span class="ph">Signs &amp; Portents</span><span class="arrow">→</span>
+      <span class="ph">The Human Story</span><span class="arrow">→</span>
+      <span class="ph">Identification</span><span class="arrow">→</span>
+      <span class="ph">Finding the Resolution</span><span class="arrow">→</span>
+      <span class="ph">Gathering What's Needed</span><span class="arrow">→</span>
+      <span class="ph">The Confrontation</span><span class="arrow">→</span>
+      <span class="ph">The Aftermath</span>
+    </div>
+    <div class="dice-panel">
+      <div><h3>The Percentile Engine</h3><p>Roll d100 at or under your skill. Roll 01–05 and shine; miss by five or less and succeed at a cost; land 96–100 and learn what a fumble means in the Dark Ages.</p></div>
+      <div><h3>Problems, Not Monsters</h3><p>Nineteen folkloric creatures — Draugr, Huldra, the Wild Hunt, the Barrow Wight — each with signs, a human story, and a resolution that usually isn't a sword. Something called it. Something keeps it here. Finding that something is half the adventure.</p></div>
+      <div><h3>Describe Signs, Not Monsters</h3><p>The GM's craft is dread: hoofprints that end mid-field, milk that sours in a sealed churn, a village that stopped dreaming. You see the creature late, if at all.</p></div>
+      <div><h3>The Momentum Pool</h3><p>A shared party resource that carries between sessions — earned by brilliance, spent to connect the dots, turn a hit, or say <em>not today</em> to the dark.</p></div>
+      <div><h3>Wounds, Not Hit Points</h3><p>Unharmed, Wounded, Badly Wounded, down — a short ladder with real consequences at every rung. Combat is fast, ugly, and desperately dangerous. Investigate first.</p></div>
+      <div><h3>Marks, Capped at Mortal</h3><p>Skills grow through meaningful successes and daring failures alike — and hard-cap at 90%. Nobody gets to be invincible.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-rune">ᛋ ᛟ ᚱ</div>
+
+<!-- ══════════════════ CAMPAIGN ══════════════════ -->
+<section class="block" id="campaign">
+  <div class="wrap reveal">
+    <div class="kicker">Ready to Run</div>
+    <h2 class="title">The Long Sleep</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">A three-act campaign of eighteen adventures spanning all five regions, opening with a Heartlands village dying slowly — not from blade or plague, but from exhaustion, from dread, from something that settles on sleepers in the dark.</p>
+        <blockquote class="pull">Before the White Path. Before the Old Way. Something held the world together. It is waking up. One man has decided he knows what to do about that. He is not wrong about the problem. He is not right about the solution. The difference is everyone.</blockquote>
+        <p class="dim">Act One: Signs in the Ground. Act Two: The Pattern Emerges. Act Three: The Long Reckoning. Alongside it: a standalone one-shot, <em>The Miller's Debt</em>, plus a browser character sheet and GM screen. The v4 manuscript is text-complete; art and final layout are the road ahead.</p>
+        <span class="chip">v4 · Core + Campaign</span>
+      </div>
+      <div>
+        <div class="statrow" style="flex-direction:column">
+          <div class="stat"><div class="n">19</div><div class="l">Folkloric Creatures</div></div>
+          <div class="stat"><div class="n">14</div><div class="l">Martial Forms</div></div>
+          <div class="stat"><div class="n">18</div><div class="l">Campaign Adventures</div></div>
+          <div class="stat"><div class="n">d100</div><div class="l">Roll Under. Pray Low.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="mark" style="color:#b9c0b4">Salt &amp; Sorrow</div>
+  <p>A game by <a href="index.html">Baby Bard Games</a>, the solo-dev studio of Daniel Lakutis</p>
+  <p><a href="index.html#tabletop-shelf">Back to the studio</a> · <a href="#stop">Back to top ↑</a></p>
+</footer>
+
+</body>
+</html>

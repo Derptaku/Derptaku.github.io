@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tiny Tails — Roll Small. Dream Big. | Baby Bard Games</title>
+<meta name="description" content="Tiny Tails, a tabletop RPG of intelligent rodents by Baby Bard Games. A kitchen is a continent, a house cat is a dragon — seven species, nine paths, and a suburban world seen from two inches off the ground.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐭</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { --accent: #e8a94f; }
+  .t-hero {
+    background:
+      radial-gradient(1100px 500px at 18% -10%, rgba(232, 169, 79, 0.13), transparent 60%),
+      radial-gradient(900px 480px at 95% 15%, rgba(143, 190, 98, 0.08), transparent 55%),
+      var(--bg-deep);
+    border-bottom: 1px solid var(--line);
+    padding: 74px 0;
+  }
+  .t-hero h1 {
+    font-size: clamp(42px, 7vw, 70px); letter-spacing: 9px; font-variant: small-caps;
+    color: #f6efdf; line-height: 1.05;
+  }
+  .t-hero .epithet { color: var(--accent); font-style: italic; font-size: 21px; margin: 10px 0 18px; }
+  .scale-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 18px; margin-top: 30px; }
+  .scale-cards .sc {
+    background: var(--panel); border: 1px solid var(--line); border-top: 3px solid var(--accent);
+    padding: 20px; text-align: center;
+  }
+  .scale-cards .sc .small { color: var(--ink-dim); font-size: 14px; }
+  .scale-cards .sc .big { color: var(--gold-bright); font-size: 19px; font-variant: small-caps; letter-spacing: 1px; margin-top: 4px; }
+  .dice-panel {
+    background: var(--panel); border: 1px solid var(--line); padding: 26px 30px; margin-top: 26px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px;
+  }
+  .dice-panel h3 { font-size: 17px; color: #f0e2c8; }
+  .dice-panel p { font-size: 14.5px; color: var(--ink-dim); }
+  .divider-paw { text-align: center; color: var(--accent); opacity: .6; font-size: 15px; letter-spacing: 12px; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Tiny Tails">
+  <div class="bar">
+    <a class="brand" href="#ttop" style="color:#e8a94f">Tiny Tails</a>
+    <ul>
+      <li><a class="navlink" href="#world">The World</a></li>
+      <li><a class="navlink" href="#species">Species</a></li>
+      <li><a class="navlink" href="#paths">Paths</a></li>
+      <li><a class="navlink" href="#rules">Rules</a></li>
+      <li><a class="navlink" href="#campaign">Campaign I</a></li>
+      <li><a class="navlink hot" href="index.html">← Baby Bard Games</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="t-hero" id="ttop">
+  <div class="wrap cols">
+    <div>
+      <span class="chip solid">Playable · Campaign I</span>
+      <h1>Tiny Tails</h1>
+      <p class="epithet">Roll Small. Dream Big.</p>
+      <p class="lede">A tabletop RPG of tiny heroes and huge adventures. Small creatures. Real dangers. A suburban world that is enormous, political, and occasionally heartbreaking — seen from two inches off the ground.</p>
+      <p class="dim">It sits at an intersection two games rarely share: Disney warmth and genuine street-level stakes. Bright, funny, full of personality — and when someone goes down, it matters.</p>
+      <a class="btn" href="#world">Look Under the Baseboards</a>
+      <a class="btn ghost" href="#campaign">Start the Campaign</a>
+    </div>
+    <figure class="framed">
+      <img src="assets/tiny-tails-cover.jpg" alt="Tiny Tails cover — heroic rodents in a huge suburban world">
+      <figcaption>Adventures in a world that was always bigger than you thought.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════ WORLD ══════════════════ -->
+<section class="block" id="world">
+  <div class="wrap reveal">
+    <div class="kicker">The Setting</div>
+    <h2 class="title">Two Inches Off the Ground</h2>
+    <p class="lede" style="max-width:820px">The first principle of Tiny Tails: what is mundane to a human is epic to a mouse. That is the whole point.</p>
+    <div class="scale-cards">
+      <div class="sc"><div class="small">A kitchen is</div><div class="big">A Continent</div></div>
+      <div class="sc"><div class="small">A house cat is</div><div class="big">A Dragon</div></div>
+      <div class="sc"><div class="small">A storm drain is</div><div class="big">A Highway</div></div>
+      <div class="sc"><div class="small">A thunderstorm is</div><div class="big">A Catastrophe</div></div>
+    </div>
+    <div class="cols" style="margin-top:34px">
+      <div>
+        <p>Beneath the humans' notice — they go to work, they come home, they don't look at the baseboards — the animals run a whole society in the gaps and margins: economies of barter and favor, territorial politics, nests that function as neighborhoods, and black markets convened under dumpsters.</p>
+        <p>There is no money. Information, food, trinkets, passage, favors, protection — the same item can be worth everything in one negotiation and nothing in the next.</p>
+      </div>
+      <div>
+        <p>Every animal shares a common tongue — a mouse can negotiate with a crow, plead with a cat, or cut a deal with a ferret syndicate. Humans hear only noise, which is a running source of both humor and pathos.</p>
+        <p class="dim">And predators remember what they are. A helpful cat is always performing a kind of restraint — and everyone at the table knows it.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-paw">· 🐾 ·</div>
+
+<!-- ══════════════════ SPECIES ══════════════════ -->
+<section class="block alt" id="species">
+  <div class="wrap reveal">
+    <div class="kicker">Who You Are</div>
+    <h2 class="title">Seven Species</h2>
+    <div class="cards">
+      <div class="card"><span class="flower">Scatter</span><h3>Mouse</h3><p>Quick and slippery — a free dart of movement every time an attack misses.</p></div>
+      <div class="card"><span class="flower">Street-Smart</span><h3>Rat</h3><p>Knows a contact everywhere, and smells a betrayal coming.</p></div>
+      <div class="card"><span class="flower">Tenacious</span><h3>Vole</h3><p>Immune to fear, brutally hard to put down for good.</p></div>
+      <div class="card"><span class="flower">Frenzy</span><h3>Shrew</h3><p>A critical hit begets another strike. And another.</p></div>
+      <div class="card"><span class="flower">Cheek Pouches</span><h3>Hamster</h3><p>Whatever it is, they will not find it on them.</p></div>
+      <div class="card"><span class="flower">Sandborn</span><h3>Gerbil</h3><p>Terrain means nothing; open ground hides nothing.</p></div>
+      <div class="card"><span class="flower">Acrobat</span><h3>Dwarf Squirrel</h3><p>Leaps anywhere. Falls never count.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-paw">· 🐾 ·</div>
+
+<!-- ══════════════════ PATHS ══════════════════ -->
+<section class="block" id="paths">
+  <div class="wrap reveal">
+    <div class="kicker">How You Fight</div>
+    <h2 class="title">Nine Paths</h2>
+    <p class="lede" style="max-width:820px">A path is your combat identity, your role in the group, and your source of abilities — armed with weapons crafted from human junk, from the Clothespin Axe to the Floss-String Bow to the Sewing Needle Lance.</p>
+    <div class="cards">
+      <div class="card"><h3>Fighter</h3><p>The durable frontline that keeps its Battle Rhythm.</p></div>
+      <div class="card"><h3>Ranger</h3><p>Strikes from range and is never where the answer lands.</p></div>
+      <div class="card"><h3>Trinketeer</h3><p>Well-stocked gadgeteer who can Jury Rig a miracle from litter.</p></div>
+      <div class="card"><h3>Crazed</h3><p>The more hurt they get, the more dangerous they become.</p></div>
+      <div class="card"><h3>Scrounger</h3><p>Shadow-stepping striker who draws First Blood.</p></div>
+      <div class="card"><h3>Tender</h3><p>Steady hands and field remedies — the reason anyone comes home.</p></div>
+      <div class="card"><h3>Smooth-Paw</h3><p>The silver tongue that turns a dragon into a conversation.</p></div>
+      <div class="card"><h3>Clickkeeper</h3><p>Bonded to an insect companion — from firefly lantern to cockroach tank.</p></div>
+      <div class="card"><h3>Scrapper</h3><p>No weapon, no problem. Multiple strikes, iron discipline.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-paw">· 🐾 ·</div>
+
+<!-- ══════════════════ RULES ══════════════════ -->
+<section class="block alt" id="rules">
+  <div class="wrap reveal">
+    <div class="kicker">The System</div>
+    <h2 class="title">Roll Under. Fight Desperate.</h2>
+    <p class="lede" style="max-width:820px">Roll a d20 at or under your stat and you succeed — a natural 1 is a critical, a natural 20 is a disaster. That's the whole resolution system. Six stats, and everything else grows from them.</p>
+    <div class="dice-panel">
+      <div><h3>The Outcome Ladder</h3><p>One d20 folds everything in: crit low, hit clean, land <em>exactly</em> on their Defense Rating for a graze, and fumble at the top. No second rolls, no math stack.</p></div>
+      <div><h3>Momentum &amp; Maneuvers</h3><p>Combat builds a spendable rhythm — earn Momentum on hits, on hurts, and on crits; spend it on Feints, Shoves, Rallies, and Combo Strikes.</p></div>
+      <div><h3>Scars That Stay</h3><p>Hit zero and survive, and you're changed — Physical, Psychological, Quirky… or a Silver Lining. Some scars are secretly gifts. All of them are yours.</p></div>
+      <div><h3>Trinkets Are Magic</h3><p>The game's wonder is human technology no rodent understands — equipped, charged, and consumable relics, with an Ancient tier that only play can unlock.</p></div>
+      <div><h3>No XP — Milestones</h3><p>The Nestkeeper carries the party through five named tiers: Scurrier, Wanderer, Wayfarer, Pathmaker, Storyborn. Every tier, you Grow, Harden, Sharpen, or Strike.</p></div>
+      <div><h3>The Nestkeeper Holds the World</h3><p>Fiction-first initiative, a four-rung threat ladder from Minion to Legend, and a barter framework for a world with no coins in it.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-paw">· 🐾 ·</div>
+
+<!-- ══════════════════ CAMPAIGN ══════════════════ -->
+<section class="block" id="campaign">
+  <div class="wrap reveal">
+    <div class="kicker">Ready to Run</div>
+    <h2 class="title">Campaign I — Five Adventures, Every Tier</h2>
+    <p class="lede" style="max-width:820px">A complete campaign from Scurrier to Storyborn, played out across the gardens, walls, and rooftops of one very ordinary, very enormous neighborhood.</p>
+    <ul class="features">
+      <li><b>The Biscuit Job</b> — Broccoli the corgi, the Short King of six suburban blocks, hires you to slip into a sealed garage and rescue a kidnapped elderly Shih Tzu.</li>
+      <li><b>What Morrow Keeps</b> — a cat crime-boss calls in a debt: enter an occupied human home and retrieve a small brass cylinder from an operative who won't be needing it.</li>
+      <li><b>The Hollow Ward</b> — the ferret syndicate known as the Business pulls you into a race through an abandoned hospital… and makes an offer.</li>
+      <li><b>The Weight of Five</b> — three factions converge on a factory roof, a hawk's nest, and the first real choice about who the prize should serve.</li>
+      <li><b>What Was Left Behind</b> — on the night everything commits, you descend below the factory, where something has been waiting a very long time.</li>
+    </ul>
+    <div class="cols" style="margin-top:26px">
+      <div>
+        <p class="dim">The Players Guide runs ten chapters — rules, species, paths, weapons, trinkets, the world, and narrative companions (any hero can befriend a sparrow, a loyal dog, or an ancient garden tortoise — no stats, pure story). Writing and rules read finished; illustration is the road ahead.</p>
+        <span class="chip">Playable · Campaign I</span>
+      </div>
+      <div>
+        <div class="statrow">
+          <div class="stat"><div class="n">7</div><div class="l">Species</div></div>
+          <div class="stat"><div class="n">9</div><div class="l">Paths</div></div>
+          <div class="stat"><div class="n">5</div><div class="l">Tiers</div></div>
+          <div class="stat"><div class="n">5</div><div class="l">Adventures</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="mark" style="color:#e8a94f">Tiny Tails</div>
+  <p>A game by <a href="index.html">Baby Bard Games</a>, the solo-dev studio of Daniel Lakutis</p>
+  <p><a href="index.html#tabletop-shelf">Back to the studio</a> · <a href="#ttop">Back to top ↑</a></p>
+</footer>
+
+</body>
+</html>

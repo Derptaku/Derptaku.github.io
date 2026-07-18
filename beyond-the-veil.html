@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beyond the Veil — Investigate. Communicate. Survive. | Baby Bard Games</title>
+<meta name="description" content="Beyond the Veil, a roguelite ghost-hunting TTRPG for 1–4 players by Baby Bard Games. Sweep the site, read the evidence, contain the ghost — before your health or your sanity breaks.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>👻</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { --accent: #5fd3c4; }
+  .v2-hero {
+    background:
+      radial-gradient(1100px 500px at 18% -10%, rgba(95, 211, 196, 0.13), transparent 60%),
+      radial-gradient(900px 480px at 95% 15%, rgba(120, 140, 160, 0.10), transparent 55%),
+      var(--bg-deep);
+    border-bottom: 1px solid var(--line);
+    padding: 74px 0;
+  }
+  .v2-hero h1 {
+    font-size: clamp(38px, 6vw, 62px); letter-spacing: 6px; font-variant: small-caps;
+    color: #eef6f4; line-height: 1.1;
+  }
+  .v2-hero .epithet { color: var(--accent); font-style: italic; font-size: 21px; margin: 10px 0 18px; }
+  .phases { display: flex; flex-wrap: wrap; gap: 10px; margin: 22px 0; align-items: center; }
+  .phases .ph {
+    border: 1px solid var(--line); background: var(--panel); color: var(--ink);
+    padding: 9px 18px; font-variant: small-caps; letter-spacing: 2px; font-size: 14.5px;
+  }
+  .phases .arrow { color: var(--accent); }
+  .dice-panel {
+    background: var(--panel); border: 1px solid var(--line); padding: 26px 30px; margin-top: 26px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px;
+  }
+  .dice-panel h3 { font-size: 17px; color: #d2ece7; }
+  .dice-panel p { font-size: 14.5px; color: var(--ink-dim); }
+  .divider-static { text-align: center; color: var(--accent); opacity: .5; font-size: 14px; letter-spacing: 12px; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Beyond the Veil">
+  <div class="bar">
+    <a class="brand" href="#btop" style="color:#5fd3c4">Beyond the Veil</a>
+    <ul>
+      <li><a class="navlink" href="#hunt">The Hunt</a></li>
+      <li><a class="navlink" href="#hunters">The Hunters</a></li>
+      <li><a class="navlink" href="#rules">The Rules</a></li>
+      <li><a class="navlink" href="#campaign">Campaign</a></li>
+      <li><a class="navlink" href="#book">The Book</a></li>
+      <li><a class="navlink hot" href="index.html">← Baby Bard Games</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="v2-hero" id="btop">
+  <div class="wrap cols">
+    <div>
+      <span class="chip solid">In Testing · v0.9.3</span>
+      <h1>Beyond the Veil</h1>
+      <p class="epithet">Investigate. Communicate. Survive.</p>
+      <p class="lede">A roguelite ghost-hunting TTRPG for 1–4 players. Take the contract, sweep the site room by room, read the evidence — and contain what's haunting it before your health or your sanity gives out.</p>
+      <p class="dim">Every session is one investigation. Not every investigator comes back — but everything you earn, you keep. Some things are better left undisturbed. You disturb them for a living.</p>
+      <a class="btn" href="#hunt">Take the Contract</a>
+      <a class="btn ghost" href="#hunters">Meet the Hunters</a>
+    </div>
+    <figure class="framed">
+      <img src="assets/beyond-the-veil-cover.jpg" alt="Beyond the Veil cover — a decaying mansion under a full moon in an oval frame, above a spirit-box device">
+      <figcaption>Fight the Beyond — solo or with friends.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════ THE HUNT ══════════════════ -->
+<section class="block" id="hunt">
+  <div class="wrap reveal">
+    <div class="kicker">The Core Loop</div>
+    <h2 class="title">One Session, One Investigation</h2>
+    <div class="phases">
+      <span class="ph">1 · Gear Up</span><span class="arrow">→</span>
+      <span class="ph">2 · Explore</span><span class="arrow">→</span>
+      <span class="ph">3 · Investigate</span><span class="arrow">→</span>
+      <span class="ph">4 · Confront</span><span class="arrow">→</span>
+      <span class="ph">5 · Debrief</span>
+    </div>
+    <div class="cols">
+      <div>
+        <p class="lede">The site is a deck of rooms drawn from a d100 table — calm rooms, evidence, hazards, minor spirits, merchants, and the occasional surge. Every room you enter feeds the <b>Haunting Meter</b>. At 8, the boss manifests, ready or not.</p>
+        <blockquote class="pull">The Door Choice: peek at two rooms, enter one, lose the other forever. The whole roguelite in a single decision.</blockquote>
+        <p>Evidence comes in six flavors — Cold Spots, Shadow Figures, Spirit Voices, EMF Spikes, Moving Objects, Blood Writing — and three matching clues name your ghost. Feeling brave? Gamble on an <b>Early Identification</b>: one ritual, one roll. Guess right and the hunt tips your way. Guess wrong and the boss comes early.</p>
+      </div>
+      <div>
+        <p class="lede">Two ways to play, one table or none:</p>
+        <ul class="features">
+          <li><b>Solo:</b> you know exactly what's in the house — the game is surviving your preparation meeting reality.</li>
+          <li><b>Group:</b> one player runs the ghost; the rest deduce its identity from evidence, majority votes, and dwindling nerve.</li>
+        </ul>
+        <p class="dim">Twenty ghosts wait in the compendium. Which one you've drawn — and what it wants — is the whole game.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-static">· · · · ·</div>
+
+<!-- ══════════════════ THE HUNTERS ══════════════════ -->
+<section class="block alt" id="hunters">
+  <div class="wrap reveal">
+    <div class="kicker">Character Classes</div>
+    <h2 class="title">Six Hunters, One Van</h2>
+    <p class="lede" style="max-width:820px">Every hunter is built on one stat and one signature ability that changes a run once per night — choose who you are before the house chooses for you.</p>
+    <div class="cards">
+      <div class="card"><span class="flower">Awareness</span><h3>Investigator</h3><p>Nothing escapes the Keen Eye — the evidence reads itself.</p></div>
+      <div class="card"><span class="flower">Combat</span><h3>Enforcer</h3><p>When subtlety fails, Overkill doesn't.</p></div>
+      <div class="card"><span class="flower">Tech</span><h3>Tech Specialist</h3><p>Field Repair keeps the gear — and the plan — alive.</p></div>
+      <div class="card"><span class="flower">Occult</span><h3>Exorcist</h3><p>Draws the Warding Circle the dead can't cross.</p></div>
+      <div class="card"><span class="flower">Resolve</span><h3>Medium</h3><p>Spectral Communion — talks to the thing everyone else is running from.</p></div>
+      <div class="card"><span class="flower">Generalist</span><h3>Rook</h3><p>Stubbornly ordinary; Tenacity is refusing to fail twice.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-static">· · · · ·</div>
+
+<!-- ══════════════════ THE RULES ══════════════════ -->
+<section class="block" id="rules">
+  <div class="wrap reveal">
+    <div class="kicker">The System</div>
+    <h2 class="title">Fast Dice, Slow Dread</h2>
+    <div class="dice-panel">
+      <div><h3>d20 + Stat, Flat DCs</h3><p>Five stats — Combat, Awareness, Tech, Occult, Resolve. Two actions a turn from a menu of six. Positioning is theater-of-mind Near/Far: no grid, no slowdown.</p></div>
+      <div><h3>Sanity Is a Second Health Bar</h3><p>Ten Health, ten Sanity. At 5 the whispers start. At 3, hallucinations. At 1 you can barely act — and at 0 the ghost doesn't kill you. It keeps you.</p></div>
+      <div><h3>Ghosts Don't Roll</h3><p>You attack on 12+; ghosts deal fixed damage on their turn. The tension isn't whether it hits — it's how long you choose to stay in the room.</p></div>
+      <div><h3>Contain, Don't Kill</h3><p>Reduce the boss and bind it with one final Tech or Occult ritual. Fail, and it escapes the site — and escaped ghosts remember.</p></div>
+      <div><h3>Gear Is a Loadout</h3><p>Twelve devices, limited hands, one van. What you carry through the front door is a bet on what's inside.</p></div>
+      <div><h3>Death Isn't Deletion</h3><p>If you fall or break, the investigation fails — but the Ectoplasm comes home with you. Every run buys the next one.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-static">· · · · ·</div>
+
+<!-- ══════════════════ CAMPAIGN ══════════════════ -->
+<section class="block alt" id="campaign">
+  <div class="wrap reveal">
+    <div class="kicker">The Roguelite Spine</div>
+    <h2 class="title">Win or Lose, You Keep the Ectoplasm</h2>
+    <div class="cols">
+      <div>
+        <ul class="features">
+          <li><b>HQ Upgrades:</b> spend Ectoplasm on permanent improvements between runs — the base grows even when the hunters don't come home.</li>
+          <li><b>Temporary Boons:</b> run-only blessings scavenged mid-hunt; death wipes them, victory banks their memory.</li>
+          <li><b>Ghost Evolution:</b> every ghost that escapes containment returns stronger, tier by tier, with a grudge shaped like your team.</li>
+          <li><b>The Threat Meter:</b> a one-way campaign clock — with Contracts to choose and Reputation to earn as the region learns your name.</li>
+        </ul>
+      </div>
+      <div>
+        <blockquote class="pull" style="font-size:22px">Every failure feeds the campaign. The question isn't whether you'll lose a hunter. It's what the survivors do about it.</blockquote>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-static">· · · · ·</div>
+
+<!-- ══════════════════ THE BOOK ══════════════════ -->
+<section class="block" id="book">
+  <div class="wrap reveal">
+    <div class="kicker">The Playtest</div>
+    <h2 class="title">Feature-Complete, Hunting for Feedback</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">The current playtest rulebook packs the entire game into twenty tight chapters, with a separate tracking-sheets booklet for the table.</p>
+        <ul class="features">
+          <li><b>Twenty haunted locations</b> and the full d100 room event table.</li>
+          <li><b>A spirit bestiary</b> of minor and elite spirits, the boss framework, and a twenty-ghost compendium with its evidence cross-reference.</li>
+          <li><b>Rules for 1–4 players</b>, campaign mode, the final confrontation, and a printable quick reference.</li>
+        </ul>
+        <p class="dim">Version 0.9.3 is in active testing — the open design questions are written right into the book, and every playtest sharpens the answer.</p>
+        <span class="chip">In Testing · v0.9.3</span>
+      </div>
+      <div>
+        <div class="statrow" style="flex-direction:column">
+          <div class="stat"><div class="n">20</div><div class="l">Ghosts</div></div>
+          <div class="stat"><div class="n">20</div><div class="l">Locations</div></div>
+          <div class="stat"><div class="n">6</div><div class="l">Hunters</div></div>
+          <div class="stat"><div class="n">1–4</div><div class="l">Players</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="mark" style="color:#5fd3c4">Beyond the Veil</div>
+  <p>A game by <a href="index.html">Baby Bard Games</a>, the solo-dev studio of Daniel Lakutis</p>
+  <p><a href="index.html#beyond-the-veil">Back to the studio</a> · <a href="#btop">Back to top ↑</a></p>
+</footer>
+
+</body>
+</html>

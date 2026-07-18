@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mageocalypse — Create Spells and Change Everything | Baby Bard Games</title>
+<meta name="description" content="Mageocalypse, a d20 TTRPG by Baby Bard Games where magic is built, not assigned — construct every spell from Element, Method, and Critical Effect, then fuse elements into something new.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔮</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { --accent: #a67ff0; }
+  .m-hero {
+    background:
+      radial-gradient(1100px 500px at 18% -10%, rgba(166, 127, 240, 0.16), transparent 60%),
+      radial-gradient(900px 480px at 95% 15%, rgba(168, 35, 42, 0.10), transparent 55%),
+      var(--bg-deep);
+    border-bottom: 1px solid var(--line);
+    padding: 74px 0;
+  }
+  .m-hero h1 {
+    font-size: clamp(40px, 6.4vw, 66px); letter-spacing: 8px; font-variant: small-caps;
+    color: #f1ebf8; line-height: 1.05;
+  }
+  .m-hero .epithet { color: var(--accent); font-style: italic; font-size: 21px; margin: 10px 0 18px; }
+  .formula {
+    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 26px 0;
+    font-variant: small-caps; letter-spacing: 2px; font-size: clamp(16px, 2.4vw, 22px);
+  }
+  .formula .term { border: 1px solid var(--accent); color: #e7dcfa; padding: 10px 22px; background: rgba(166,127,240,.07); }
+  .formula .op { color: var(--ink-dim); font-size: 26px; }
+  .dice-panel {
+    background: var(--panel); border: 1px solid var(--line); padding: 26px 30px; margin-top: 26px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px;
+  }
+  .dice-panel h3 { font-size: 17px; color: #e0d3f7; }
+  .dice-panel p { font-size: 14.5px; color: var(--ink-dim); }
+  .divider-arc { text-align: center; color: var(--accent); opacity: .55; font-size: 16px; letter-spacing: 10px; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Mageocalypse">
+  <div class="bar">
+    <a class="brand" href="#mtop" style="color:#a67ff0">Mageocalypse</a>
+    <ul>
+      <li><a class="navlink" href="#formula">The Formula</a></li>
+      <li><a class="navlink" href="#methods">Methods</a></li>
+      <li><a class="navlink" href="#mastery">Mastery</a></li>
+      <li><a class="navlink" href="#paths">Paths</a></li>
+      <li><a class="navlink" href="#book">The Book</a></li>
+      <li><a class="navlink hot" href="index.html">← Baby Bard Games</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="m-hero" id="mtop">
+  <div class="wrap cols">
+    <div>
+      <span class="chip solid">Coming Soon · d20 Magic TTRPG</span>
+      <h1>Mageocalypse</h1>
+      <p class="epithet">Create spells and change everything.</p>
+      <p class="lede">A TTRPG about creating spells and unleashing the unthinkable. There is no spell list in Mageocalypse — magic is <em>built, not assigned</em>, and every mage at the table constructs their own from first principles.</p>
+      <p class="dim">The system is deliberately genre-agnostic: the same rules power a far-future colony, a present-day thriller, or a high-fantasy kingdom. Wherever there are mages, there is a Mageocalypse waiting to happen.</p>
+      <a class="btn" href="#formula">Learn the Formula</a>
+      <a class="btn ghost" href="#mastery">See What Mastery Buys</a>
+    </div>
+    <figure class="framed">
+      <img src="assets/mageocalypse-cover.jpg" alt="Mageocalypse cover — a hooded mage reaching toward a glowing violet arcane circle above an open rune-covered spellbook">
+      <figcaption>The intersection of your choices is your identity.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════ THE FORMULA ══════════════════ -->
+<section class="block" id="formula">
+  <div class="wrap reveal">
+    <div class="kicker">The Core Idea</div>
+    <h2 class="title">You Are the Spell List</h2>
+    <div class="formula">
+      <span class="term">Element</span><span class="op">+</span>
+      <span class="term">Method</span><span class="op">+</span>
+      <span class="term">Critical Effect</span><span class="op">=</span>
+      <span class="term" style="border-color:#f2ce7b; color:#f6ecd4">Your Spell</span>
+    </div>
+    <div class="cols">
+      <div>
+        <p class="lede">Every attack spell is assembled from three choices: an <b>Element</b> (ten core schools, with four advanced ones — Psychic, Blood, Time, Illusion — unlocking as you grow), a <b>Method</b> of delivery, and a <b>Critical Effect</b> that fires when the dice sing.</p>
+        <p>Utility magic runs on its own track — non-elemental spells drawing from a shared daily pool — so the builder covers the whole art, not just the artillery.</p>
+        <blockquote class="pull">Two mages at the same table might share zero spells in common.<cite>The design promise</cite></blockquote>
+      </div>
+      <div>
+        <div class="statrow" style="flex-wrap:wrap">
+          <div class="stat"><div class="n">14</div><div class="l">Elements</div></div>
+          <div class="stat"><div class="n">12</div><div class="l">Methods</div></div>
+          <div class="stat"><div class="n">91</div><div class="l">Fusions</div></div>
+          <div class="stat"><div class="n">36</div><div class="l">Combos at Max Level</div></div>
+        </div>
+        <p class="dim" style="margin-top:14px">By the top of the ladder a single mage juggles four elements, three methods, three critical effects, and five utility spells — thirty-six attack combinations, and no two mages' thirty-six look alike.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-arc">✦ ✦ ✦</div>
+
+<!-- ══════════════════ METHODS ══════════════════ -->
+<section class="block alt" id="methods">
+  <div class="wrap reveal">
+    <div class="kicker">Delivery &amp; Defense</div>
+    <h2 class="title">Twelve Ways to Say It</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">Methods are how a spell reaches the world — from the humble, permanent <b>Bolt</b> every mage keeps forever, through <b>Blades</b>, <b>Lances</b>, <b>Bursts</b>, <b>Storms</b>, and <b>Sigils</b>.</p>
+        <p>Methods split into <b>Selective</b> (choose your targets) and <b>Indiscriminate</b> (hit everything, and live with it). Storms don't care who your friends are.</p>
+      </div>
+      <div>
+        <p class="lede">Four Methods are shields instead of swords: <b>Ward</b>, <b>Aura</b>, <b>Conjure</b>, and <b>Bind</b> — and each one crosses with <em>every</em> element to produce a distinct defense.</p>
+        <p>A Fire Ward burns the attacker who dares melee you. A Time Bind is one full turn of complete suspension. Your defense carries your identity as loudly as your attack.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-arc">✦ ✦ ✦</div>
+
+<!-- ══════════════════ MASTERY ══════════════════ -->
+<section class="block" id="mastery">
+  <div class="wrap reveal">
+    <div class="kicker">Growth</div>
+    <h2 class="title">Never Stuck. Never Finished.</h2>
+    <div class="dice-panel">
+      <div><h3>The Epiphany</h3><p>Every level grants a respec — reshape any pick, unlock advanced elements from level 2, and at level 6 rebuild your entire kit. A mage who picks "wrong" at level one is never stuck. Only the Bolt is forever.</p></div>
+      <div><h3>Fusion Spells</h3><p>The signature of a master: fuse two known elements into a spell neither produces alone. All 91 two-element pairings are fully realized — from Plasma Lance to Eclipse — rolling two damage dice and answering to no table but their own.</p></div>
+      <div><h3>Five Stats, One Die</h3><p>Power, Focus, Resilience, Attunement, Swiftness. Combat is d20 + Focus against a flat dodge threshold — Focus widens your crit range, Attunement stretches your durations, Swiftness decides who moves first.</p></div>
+      <div><h3>Crits That Mean It</h3><p>A critical hit fires your chosen Critical Effect — the third term of your formula. A natural 1 rolls the d12 fumble table, because unthinkable power has unthinkable Mondays.</p></div>
+      <div><h3>Ten Levels of Ladder</h3><p>From Apprentice to Archmage Supreme — each rung adding elements, methods, effects, and utility slots to the machine you're building.</p></div>
+      <div><h3>Any World You Point It At</h3><p>A tier-based, genre-agnostic creature builder with an ability menu and encounter budget means the Propagator of any setting can field foes worth melting.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-arc">✦ ✦ ✦</div>
+
+<!-- ══════════════════ PATHS ══════════════════ -->
+<section class="block alt" id="paths">
+  <div class="wrap reveal">
+    <div class="kicker">Optional Archetypes</div>
+    <h2 class="title">The Paths</h2>
+    <p class="lede" style="max-width:820px">The formula makes your magic; a Path shapes your role. Optional archetypes bend the builder toward a way of fighting — take one, or take none and stay pure formula.</p>
+    <div class="cards">
+      <div class="card"><h3>Warden</h3><p>The shield between the party and the blast.</p></div>
+      <div class="card"><h3>Berserker</h3><p>Magic as a melee weapon with the safety filed off.</p></div>
+      <div class="card"><h3>Battle Medic</h3><p>Keeps the line standing while the line holds.</p></div>
+      <div class="card"><h3>Lifegiver</h3><p>The deep well of restoration.</p></div>
+      <div class="card"><h3>Controller</h3><p>Owns the battlefield's geometry.</p></div>
+      <div class="card"><h3>Skirmisher</h3><p>Strike, vanish, reposition, repeat.</p></div>
+      <div class="card"><h3>Battlemage</h3><p>Armored spellwork at the front.</p></div>
+      <div class="card"><h3>Summoner</h3><p>Never fights alone.</p></div>
+      <div class="card"><h3>Alchemist</h3><p>Bottles the formula for later.</p></div>
+      <div class="card"><h3>Trapper</h3><p>The fight was decided before it started.</p></div>
+    </div>
+    <p class="dim" style="margin-top:20px">…and advanced Paths — the Duelist, the Vampire, the Illusionist — for mages who have earned stranger tools.</p>
+  </div>
+</section>
+
+<div class="divider-arc">✦ ✦ ✦</div>
+
+<!-- ══════════════════ THE BOOK ══════════════════ -->
+<section class="block" id="book">
+  <div class="wrap reveal">
+    <div class="kicker">The Rulebook</div>
+    <h2 class="title">Complete, Audited, Nearly Ready</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">Mageocalypse ships as a full System Reference &amp; Rulebook — sixteen chapters and two appendices in a classic two-column grimoire layout, with a printable character sheet.</p>
+        <ul class="features">
+          <li><b>The complete builder:</b> all four tables — Element, Method, Critical Effect, Utility — plus every Defensive Intersection.</li>
+          <li><b>Character creation</b> with standard array or point buy, leveling from Apprentice to Archmage Supreme, and the optional Paths.</li>
+          <li><b>The full 91-entry Fusion catalogue</b> — every two-element pairing designed, named, and statted.</li>
+          <li><b>Combat, healing, death, and non-combat play</b>, a quick reference, a condition glossary, and the genre-agnostic creature builder.</li>
+        </ul>
+        <p class="dim">The manuscript has been through a heavy multi-pass quality audit; what remains before release is final balance sign-off and polish.</p>
+        <span class="chip solid">Coming Soon</span>
+      </div>
+      <div>
+        <div class="statrow" style="flex-direction:column">
+          <div class="stat"><div class="n">16 + 2</div><div class="l">Chapters + Appendices</div></div>
+          <div class="stat"><div class="n">91</div><div class="l">Fusion Spells</div></div>
+          <div class="stat"><div class="n">10</div><div class="l">Levels of Mastery</div></div>
+          <div class="stat"><div class="n">1</div><div class="l">Spell List (Yours)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="mark" style="color:#a67ff0">Mageocalypse</div>
+  <p>A system by <a href="index.html">Baby Bard Games</a>, the solo-dev studio of Daniel Lakutis</p>
+  <p><a href="index.html#mageocalypse">Back to the studio</a> · <a href="#mtop">Back to top ↑</a></p>
+</footer>
+
+</body>
+</html>
