@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glitchrix — Enter the Code | Baby Bard Games</title>
+<meta name="description" content="Glitchrix, a d20 TTRPG by Baby Bard Games — a high-fantasy world with a machine beneath its skin. Fourteen Operating System classes, a planet-sized computer, and the spreading Deadzone.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>">
+<link rel="stylesheet" href="styles.css">
+<style>
+  body { --accent: #55d0ff; background: #0b0a14; }
+  .g-hero {
+    background:
+      radial-gradient(1100px 500px at 15% -10%, rgba(85, 208, 255, 0.13), transparent 60%),
+      radial-gradient(900px 480px at 95% 15%, rgba(160, 107, 255, 0.14), transparent 55%),
+      #070610;
+    border-bottom: 1px solid var(--line);
+    padding: 74px 0;
+  }
+  .g-hero h1 {
+    font-size: clamp(44px, 7vw, 72px); letter-spacing: 10px; font-variant: small-caps;
+    color: #eef4f8; line-height: 1.05;
+  }
+  .g-hero .epithet { color: var(--accent); font-style: italic; font-size: 21px; margin: 10px 0 18px; }
+  section.block { background: #0b0a14; }
+  section.block.alt { background: #08070f; }
+  .role-label { font-variant: small-caps; letter-spacing: 4px; font-size: 13.5px; color: #a06bff; margin: 30px 0 4px; }
+  .dice-panel {
+    background: var(--panel); border: 1px solid var(--line); padding: 26px 30px; margin-top: 26px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 22px;
+  }
+  .dice-panel h3 { font-size: 17px; color: #cfe9f5; }
+  .dice-panel p { font-size: 14.5px; color: var(--ink-dim); }
+  .district-list { display: flex; flex-wrap: wrap; gap: 10px; margin: 18px 0; }
+  .district-list span {
+    border: 1px solid var(--line); color: var(--ink); background: var(--panel);
+    padding: 6px 14px; font-size: 14px;
+  }
+  .divider-circuit { text-align: center; color: var(--accent); opacity: .55; font-size: 15px; letter-spacing: 10px; padding: 8px 0; }
+</style>
+</head>
+<body>
+
+<nav class="site" aria-label="Glitchrix">
+  <div class="bar">
+    <a class="brand" href="#gtop" style="color:#55d0ff">Glitchrix</a>
+    <ul>
+      <li><a class="navlink" href="#world">World</a></li>
+      <li><a class="navlink" href="#mainframe">Mainframe</a></li>
+      <li><a class="navlink" href="#classes">The 14 OS</a></li>
+      <li><a class="navlink" href="#rules">Rules</a></li>
+      <li><a class="navlink" href="#book">The Book</a></li>
+      <li><a class="navlink hot" href="index.html">← Baby Bard Games</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="g-hero" id="gtop">
+  <div class="wrap cols">
+    <div>
+      <span class="chip solid">Alpha Build · d20 TTRPG</span>
+      <h1>Glitchrix</h1>
+      <p class="epithet">Enter the Code. Write Your Legend.</p>
+      <p class="lede">A d20 tabletop RPG set on a world that looks like a high-fantasy epic — and hides a machine beneath its skin. The planet Glitchrix&nbsp;α was built from nanomachines: trillions of them, assembled into mountains, forests, rivers, and civilization.</p>
+      <p class="dim">The machine chose to wear the face of a fantasy world, and it wears it beautifully. Runes glow on every surface. The rivers run coolant. And death isn't the end here — it's a reset. Reset too many times, though, and the corruption might take hold.</p>
+      <a class="btn" href="#world">Boot the World</a>
+      <a class="btn ghost" href="#classes">Meet the Fourteen</a>
+    </div>
+    <figure class="framed">
+      <img src="assets/glitchrix-cover.jpg" alt="Glitchrix cover — four adventurers on a glowing hex path overlooking a neon-lit fantasy citadel with a dragon overhead">
+      <figcaption>Embrace the glitches.</figcaption>
+    </figure>
+  </div>
+</header>
+
+<main>
+
+<!-- ══════════════════ WORLD ══════════════════ -->
+<section class="block" id="world">
+  <div class="wrap reveal">
+    <div class="kicker">The Setting</div>
+    <h2 class="title">A World That Wears a Mask</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">Glitchrix α is a computer the size of a world, powered by a core called the <b>Lumen Heart</b> — and every inch of it plays fantasy. Faint blue-white <b>leylines</b> thread the soil, the tree bark, the castle mortar: the planet's circuitry, doubling as its roads and its resting places.</p>
+        <p>You are a <b>Nano-Soul</b> — a free-willed consciousness in a self-repairing body of living code. When you die, the leylines carry you home and the world gives you a new body. Unless you die near the <b>Deadzone</b> — the blacked-out expanse where the leylines have gone dark, coolant turns black and acidic, and a freed soul doesn't come home at all. It comes back as something else.</p>
+        <blockquote class="pull">Like walking from a living body into a dead one — and every enemy was once a person.<cite>The Deadzone, which has already swallowed half a continent</cite></blockquote>
+        <p class="dim">This is why the world forged its fourteen Operating Systems: warriors built to fight what its automated defenses cannot.</p>
+      </div>
+      <div class="cards" style="margin-top:0; grid-template-columns: 1fr 1fr;">
+        <div class="card region-card"><h3>Kernel</h3><p>The central continent and beating heart of civilization — Hex Junction, the fortress Firewall, and the capital on its western shore.</p></div>
+        <div class="card region-card"><h3>Cache</h3><p>The frozen north — Coldboot, Frostline, and the Howling Span across the Frozen Lattice.</p></div>
+        <div class="card region-card"><h3>Firmware</h3><p>Tropics fading to desert — the Rust Flats, the Bloom, and a tower called the Arcade that nobody has ever finished climbing.</p></div>
+        <div class="card region-card"><h3>Peripheral</h3><p>The eastern front line, half-consumed. Its border with the dark is called the Dimline, and the Dimline moves.</p></div>
+        <div class="card region-card"><h3>The Liquid Expanse</h3><p>The coolant ocean — sixty percent of the surface, dotted with the Drift Isles.</p></div>
+        <div class="card region-card"><h3>The Deadzone</h3><p>Where the world went dark. It started at Ground Zero a thousand years ago. It has not stopped.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-circuit">▰ ▰ ▰</div>
+
+<!-- ══════════════════ MAINFRAME ══════════════════ -->
+<section class="block alt" id="mainframe">
+  <div class="wrap reveal">
+    <div class="kicker">The Capital</div>
+    <h2 class="title">Mainframe</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">The greatest city on the planet sits on Kernel's western shore, atop the largest leyline nexus in existence — nine districts of neon-lit fantasy, from the Hall of Administrators down to the Red LED District.</p>
+        <p>Take a job from the Firewalls, spend your Octets at the Open-Source Market, catch a fight at the Sandbox Arena, and sleep it off at the Reboot Inn. Below the streets run the Recycle Bin Tunnels; on the eastern wall stands the sealed <b>Null Gate</b>, facing the Deadzone — and the fourteen OS Ambassador Buildings, one for every Operating System, recruit the warriors who keep it sealed.</p>
+        <div class="district-list">
+          <span>Silicon Alley</span><span>The Sandbox</span><span>Heavy Load Landing</span><span>The Archives</span><span>Broadband Bayside</span><span>The Circuit Board</span><span>Soundboard Central</span><span>Red LED District</span><span>Open-Source Market</span>
+        </div>
+      </div>
+      <div>
+        <blockquote class="pull" style="font-size:22px">A magical world where runes glow on every surface — buildings grown from nanites, weapons that still look like swords, and a city that hums if you put your ear to the street.</blockquote>
+        <p class="dim">Interior maps and city art are on the alpha roadmap — for now, Mainframe lives in 250 pages of text and the theater of the mind.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-circuit">▰ ▰ ▰</div>
+
+<!-- ══════════════════ CLASSES ══════════════════ -->
+<section class="block" id="classes">
+  <div class="wrap reveal">
+    <div class="kicker">Character Classes</div>
+    <h2 class="title">The Fourteen Operating Systems</h2>
+    <p class="lede" style="max-width:820px">Every warrior runs an OS — a fighting framework installed on the soul. Fourteen systems, each fully built from level 1 to 10, each with its own hacks, subroutines, and reason to exist.</p>
+
+    <div class="role-label">Frontline</div>
+    <div class="cards">
+      <div class="card"><span class="flower">Guardian · Tank</span><h3>VPN</h3><p>A veritable brick wall that breaks for no soul — taunts, redirects, and shields.</p></div>
+      <div class="card"><span class="flower">Warrior</span><h3>Terminator</h3><p>Big weapons, big damage, big swings, big pain.</p></div>
+      <div class="card"><span class="flower">Berserker</span><h3>Splitbreaker</h3><p>A dual-blade whirlwind that hits harder the lower its health drops.</p></div>
+      <div class="card"><span class="flower">Brawler</span><h3>Overclocker</h3><p>Speed incarnate — rapid strikes and automatic counters.</p></div>
+    </div>
+
+    <div class="role-label">Casters</div>
+    <div class="cards">
+      <div class="card"><span class="flower">Mage</span><h3>Thermalist</h3><p>Shifts element mid-fight — the most versatile damage on the field.</p></div>
+      <div class="card"><span class="flower">Warlock</span><h3>Malwarlock</h3><p>Doesn't kill — corrupts. Plants viruses for a slow, methodical deletion.</p></div>
+      <div class="card"><span class="flower">Necromancer</span><h3>Neuromancer</h3><p>Raises Dead Code from the deleted and debuffs from range.</p></div>
+      <div class="card"><span class="flower">Summoner</span><h3>Convoker</h3><p>Fights beside an evolving Netcat companion.</p></div>
+    </div>
+
+    <div class="role-label">Support</div>
+    <div class="cards">
+      <div class="card"><span class="flower">Cleric</span><h3>Transducer</h3><p>The primary healer — restores allies and burns the dark with Lumen.</p></div>
+      <div class="card"><span class="flower">Paladin</span><h3>Fragmenter</h3><p>A Lumen-charged warrior whose auras shield friends and scorch corruption.</p></div>
+      <div class="card"><span class="flower">Bard</span><h3>Speaker</h3><p>A battlefield DJ whose Playlists buff the party — Rock, Metal, Drum &amp; Bass, Epic.</p></div>
+    </div>
+
+    <div class="role-label">Specialists</div>
+    <div class="cards">
+      <div class="card"><span class="flower">Rogue</span><h3>Phisher</h3><p>A stealth striker with elemental coatings who recycles misses into second chances.</p></div>
+      <div class="card"><span class="flower">Ranger</span><h3>Breacher</h3><p>Traps, ricochets, and gun-fu — deadly at any range.</p></div>
+      <div class="card"><span class="flower">Druid</span><h3>Andruid</h3><p>A shapeshifter who can be a mouse, a dinosaur, or whatever the scouting calls for.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-circuit">▰ ▰ ▰</div>
+
+<!-- ══════════════════ RULES ══════════════════ -->
+<section class="block alt" id="rules">
+  <div class="wrap reveal">
+    <div class="kicker">The System</div>
+    <h2 class="title">A d20 That Runs on Un-Debugged Code</h2>
+    <p class="lede" style="max-width:820px">Attacks roll over. Skills roll under. Your defense re-rolls itself every round — and the dice can literally glitch, because the world was never debugged.</p>
+    <div class="dice-panel">
+      <div><h3>Bugs &amp; Glitches</h3><p>A natural 1 triggers a Bug — misfires, feedback, friendly fire. A natural 20 triggers a Glitch — amplified damage, bonus actions. The tables exist because the world's code shipped untested.</p></div>
+      <div><h3>Processing Speed</h3><p>No static armor class: your Avoidance adds a die you re-roll every round. Some rounds you're untouchable. Some rounds you lag.</p></div>
+      <div><h3>XP From Failure</h3><p>Every failed roll earns experience. The system rewards trying, falling down, and standing back up — leveling is literally learning.</p></div>
+      <div><h3>Soft &amp; Hard Resets</h3><p>Rest by a leyline to restore yourself — but stack quick Soft Resets without a full one and your maximum health shaves down, 25% at a time. Corruption creeps in through shortcuts.</p></div>
+      <div><h3>Hacks &amp; Subroutines</h3><p>Active abilities spend Supply Power; passives run always-on. Health is Data Points, coin is Octets, and your gear carries up to three Mods.</p></div>
+      <div><h3>Downed, Then Deleted</h3><p>At zero DP you have three turns before permanent Deletion. Hex-grid combat with cover, facing, and flanking — fast, tactical, and personal.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="divider-circuit">▰ ▰ ▰</div>
+
+<!-- ══════════════════ THE BOOK ══════════════════ -->
+<section class="block" id="book">
+  <div class="wrap reveal">
+    <div class="kicker">The Alpha Build</div>
+    <h2 class="title">One Book, Fully Written</h2>
+    <div class="cols">
+      <div>
+        <p class="lede">The Glitchrix Master Rulebook is a complete manuscript — every rule, every class, every corner of the world already on the page.</p>
+        <ul class="features">
+          <li><b>Character creation</b> with six stats, three generation methods, and Persona Traits — claws, wings, scales, whatever your code grew.</li>
+          <li><b>All fourteen Operating Systems</b> statted from level 1 to 10, with full hack and subroutine lists.</li>
+          <li><b>A ~65-creature bestiary</b> with scaling rules and a build-your-own-creature system — from the Fragmented to dragons to the Corrupted Soulreaver.</li>
+          <li><b>A full Game Developer's toolkit:</b> encounter budgets, NPC and loot generators, biome encounter tables, travel rules — plus the starter adventure <em>Signal in the Static</em>.</li>
+          <li><b>The Arcade</b> — a mysterious tower that works as a recurring dungeon or an entire level-1-to-endgame campaign on its own.</li>
+        </ul>
+        <p class="dim">What "alpha" means here: the text is done; the dressing isn't. Art, maps, class emblems, and the printable character-sheet companion are the road ahead — and playtests will sharpen the numbers.</p>
+        <span class="chip">Alpha · Rules-Complete · Art &amp; Playtesting Ahead</span>
+      </div>
+      <div>
+        <div class="statrow" style="flex-direction:column">
+          <div class="stat"><div class="n">250</div><div class="l">Pages</div></div>
+          <div class="stat"><div class="n">14</div><div class="l">OS Classes</div></div>
+          <div class="stat"><div class="n">~65</div><div class="l">Creatures</div></div>
+          <div class="stat"><div class="n">12 + 3</div><div class="l">Chapters + Appendices</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site">
+  <div class="mark" style="color:#55d0ff">Glitchrix</div>
+  <p>A world by <a href="index.html">Baby Bard Games</a>, the solo-dev studio of Daniel Lakutis</p>
+  <p><a href="index.html#glitchrix">Back to the studio</a> · <a href="#gtop">Back to top ↑</a></p>
+</footer>
+
+</body>
+</html>

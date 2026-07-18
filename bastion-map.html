@@ -1,0 +1,1294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bastion — Velflora TTRPG Map</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🗺️</text></svg>">
+<style>
+  :root {
+    --bg:#1f1a14; --panel:#2a241c; --ink:#f5e8c8; --ink-dim:#c8b487;
+    --accent:#d8a85a; --rule:#5a4226;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin:0; padding:0; height:100%; background:var(--bg); color:var(--ink);
+                font-family: Georgia, "Times New Roman", serif; }
+  #app { display:flex; height:100vh; }
+  #map-wrap { flex:1; position:relative; overflow:hidden; background:#1f1a14; }
+  #map-wrap svg { width:100%; height:100%; display:block; cursor:grab; user-select:none; }
+  #map-wrap svg.dragging { cursor:grabbing; }
+  #side { width:380px; background:var(--panel); border-left:2px solid var(--rule);
+           padding:18px 18px 26px; overflow-y:auto; }
+  #side h1 { font-size:28px; margin:0 0 4px; color:var(--accent); letter-spacing:2px;}
+  #side .sub { color:var(--ink-dim); font-style:italic; margin-bottom:14px; font-size:14px;}
+  #side h2 { font-size:20px; margin:18px 0 6px; color:var(--accent); border-bottom:1px solid var(--rule); padding-bottom:4px;}
+  #side h3 { font-size:16px; margin:10px 0 4px; color:var(--ink);}
+  #side p { margin:0 0 8px; line-height:1.45;}
+  #side .blurb { color:var(--ink-dim);}
+  #search { width:100%; padding:8px 10px; background:#1a1610; color:var(--ink);
+             border:1px solid var(--rule); border-radius:3px; font-family:inherit; font-size:14px;}
+  .poi-list { list-style:none; padding:0; margin:8px 0;}
+  .poi-list li { padding:6px 8px; margin:2px 0; background:#1a1610; border-left:3px solid var(--rule);
+                  cursor:pointer; transition:.15s;}
+  .poi-list li:hover { background:#2c241a; border-left-color:var(--accent);}
+  .poi-list .npc { color:var(--ink-dim); font-style:italic; font-size:12px;}
+  .badge { display:inline-block; padding:2px 8px; border-radius:8px; font-size:11px;
+            background:#3a2c18; color:var(--ink-dim); margin-right:4px;}
+  #toolbar { position:absolute; top:14px; right:14px; background:rgba(42,36,28,0.92);
+              border:1px solid var(--rule); border-radius:4px; padding:6px;
+              display:flex; gap:6px; z-index:10;}
+  #toolbar button { background:#1a1610; color:var(--ink); border:1px solid var(--rule);
+                     border-radius:3px; padding:6px 10px; cursor:pointer; font-family:inherit;
+                     font-size:13px;}
+  #toolbar button:hover { background:#2c241a; border-color:var(--accent);}
+  #tooltip { position:absolute; pointer-events:none; background:rgba(42,36,28,0.96);
+              border:1px solid var(--accent); border-radius:3px; padding:6px 10px;
+              color:var(--ink); font-size:13px; max-width:300px; line-height:1.35;
+              z-index:20; display:none; box-shadow: 0 3px 12px rgba(0,0,0,0.6);}
+  #tooltip .t-name { color:var(--accent); font-weight:bold; margin-bottom:2px;}
+  #tooltip .t-npc { color:var(--ink-dim); font-style:italic; font-size:11px;}
+  .poi:hover circle:nth-of-type(1) { fill:#ffd56a; }
+  .district { transition: filter 0.2s; }
+  .district.dim { filter: brightness(0.55); }
+  .poi.dim { opacity: 0.25; }
+  .footer { margin-top: 24px; color:var(--ink-dim); font-size:11px; text-align:center;
+             border-top:1px solid var(--rule); padding-top:10px;}
+</style>
+</head>
+<body>
+<a href="velflora.html" style="position:fixed; left:14px; bottom:14px; z-index:99; background:rgba(20,15,10,.88); color:#d9a441; border:1px solid #6b5326; padding:7px 16px; font-family:Georgia,serif; font-size:13px; letter-spacing:1.5px; font-variant:small-caps; text-decoration:none;">← Back to Velflora</a>
+<div id="app">
+  <div id="map-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2400 1800" preserveAspectRatio="xMidYMid meet">
+<defs>
+  <pattern id="parchment" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+    <rect width="120" height="120" fill="#E8D6A8"/>
+    <circle cx="20"  cy="30"  r="0.8" fill="#8e7a4a" opacity=".18"/>
+    <circle cx="55"  cy="80"  r="0.6" fill="#8e7a4a" opacity=".15"/>
+    <circle cx="90"  cy="20"  r="0.7" fill="#8e7a4a" opacity=".2"/>
+    <circle cx="100" cy="100" r="0.5" fill="#8e7a4a" opacity=".15"/>
+    <circle cx="35"  cy="60"  r="0.6" fill="#8e7a4a" opacity=".18"/>
+  </pattern>
+  <pattern id="waves" x="0" y="0" width="40" height="20" patternUnits="userSpaceOnUse">
+    <rect width="40" height="20" fill="#587E8E"/>
+    <path d="M0,10 Q10,4 20,10 T40,10" stroke="#3F5E6E" fill="none" stroke-width="1.5"/>
+  </pattern>
+  <radialGradient id="hill" cx="50%" cy="50%" r="60%">
+    <stop offset="0%" stop-color="#8E7048" stop-opacity="0.35"/>
+    <stop offset="60%" stop-color="#8E7048" stop-opacity="0.12"/>
+    <stop offset="100%" stop-color="#8E7048" stop-opacity="0"/>
+  </radialGradient>
+  <filter id="shadow">
+    <feDropShadow dx="2" dy="3" stdDeviation="2" flood-opacity="0.35"/>
+  </filter>
+</defs>
+<rect width="2400" height="1800" fill="url(#parchment)"/>
+<rect x="0" y="0" width="220" height="1800" fill="url(#waves)"/>
+<rect x="60" y="750" width="150" height="22" fill="#9B7E54" stroke="#5A4022" stroke-width="2"/>
+<rect x="60" y="820" width="170" height="22" fill="#9B7E54" stroke="#5A4022" stroke-width="2"/>
+<rect x="60" y="900" width="180" height="26" fill="#9B7E54" stroke="#5A4022" stroke-width="2"/>
+<rect x="60" y="980" width="160" height="22" fill="#9B7E54" stroke="#5A4022" stroke-width="2"/>
+<rect x="60" y="1050" width="140" height="22" fill="#9B7E54" stroke="#5A4022" stroke-width="2"/>
+<ellipse cx="1385" cy="872" rx="430" ry="400" fill="url(#hill)"/>
+<g id="districts">
+<polygon class="district" id="d-saltside" points="220,300 470,290 470,1080 220,1090" fill="#9CB1BC" stroke="#5C737E" stroke-width="3" data-name="Saltside" data-blurb="Working waterfront. Salt-stained planks, gulls, the smell of fish and tar." data-tone="Functional, weather-beaten, never quiet."/>
+<polygon class="district" id="d-rotgut" points="220,1090 470,1080 490,1540 220,1545" fill="#5F5660" stroke="#3A3338" stroke-width="3" data-name="Rotgut Row" data-blurb="Saltside&#x27;s southern underbelly. Tighter alleys, fewer lanterns, the deals get worse the further in you go." data-tone="Vice and shadow. Watch your purse."/>
+<polygon class="district" id="d-thornwall" points="470,290 1620,290 1620,650 1200,650 1150,700 1150,1095 470,1095" fill="#D4B488" stroke="#8E6B3A" stroke-width="3" data-name="Thornwall" data-blurb="The commercial heart of Bastion — the great market ring wrapping the Citadel&#x27;s north and west. Wide cobbled streets, awnings in red and gold, the Notice Board at the center." data-tone="Prosperous, busy, the place every traveler ends up."/>
+<polygon class="district" id="d-castle" points="1200,650 1570,650 1620,700 1620,1045 1570,1095 1200,1095 1150,1045 1150,700" fill="#F2EDDC" stroke="#5C5650" stroke-width="3" data-name="Citadel District" data-blurb="Bastion&#x27;s walled heart on the highest ground at the city&#x27;s very center. The Sunspire Cathedral and the Petalguard Keep crown it; along the inner ring stand the Hall of Records and the almshouses and healing-houses that are the city&#x27;s visible mercy. Power, piety, and charity side by side." data-tone="Imposing. Power and dread — and the machinery of charity. Visible from anywhere in the city."/>
+<polygon class="district" id="d-crest" points="1620,290 2210,290 2230,900 2160,1095 1620,1095" fill="#EDE0C2" stroke="#A88E4A" stroke-width="3" data-name="Crest" data-blurb="Wealthy. Ironwork gates, manicured gardens, arched windows. The streets climb west, up the hill toward the Citadel." data-tone="Old money. Quiet, cool, slightly disdainful."/>
+<polygon class="district" id="d-hearthside" points="1300,1095 2160,1095 2120,1540 1300,1540" fill="#E8D8B0" stroke="#9B8454" stroke-width="3" data-name="Hearthside" data-blurb="Quiet residential streets in the Citadel&#x27;s southern shadow. Two-story homes, small gardens, curving lanes that grew naturally rather than by design." data-tone="Warm. The kind of street where neighbors know your name."/>
+<polygon class="district" id="d-wilt" points="490,1095 1300,1095 1300,1540 490,1540" fill="#9C9690" stroke="#5E5A55" stroke-width="3" data-name="The Wilt" data-blurb="Poor but swept clean. Day laborers, mended clothes, the Day Labor Wall crowded before dawn." data-tone="Tired but holding on. The streets stay swept because someone insists they do."/>
+</g>
+<g id="roads" stroke-linecap="round" stroke-linejoin="round" fill="none">
+<path d="M 230,900 L 470,900 L 800,900 L 1100,900" stroke="#9B8554" stroke-width="26"/>
+<path d="M 230,900 L 470,900 L 800,900 L 1100,900" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,610 L 1660,610 L 1660,1135 L 1100,1135 L 1100,610" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,610 L 1660,610 L 1660,1135 L 1100,1135 L 1100,610" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,230 L 1100,610" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,230 L 1100,610" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,1135 L 1100,1580" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,1135 L 1100,1580" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1660,870 L 1960,870 L 2230,870" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1660,870 L 1960,870 L 2230,870" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,900 L 1300,900" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,900 L 1300,900" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 310,350 L 310,800 L 310,1050" stroke="#9B8554" stroke-width="14"/>
+<path d="M 310,350 L 310,800 L 310,1050" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 240,600 L 440,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 240,600 L 440,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 240,850 L 440,850" stroke="#9B8554" stroke-width="14"/>
+<path d="M 240,850 L 440,850" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 300,1130 L 310,1330 L 320,1500" stroke="#9B8554" stroke-width="14"/>
+<path d="M 300,1130 L 310,1330 L 320,1500" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,420 L 1080,420 L 1600,420" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,420 L 1080,420 L 1600,420" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,540 L 1080,540" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,540 L 1080,540" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 700,320 L 700,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 700,320 L 700,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 900,320 L 900,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 900,320 L 900,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1300,320 L 1300,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1300,320 L 1300,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1470,320 L 1470,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1470,320 L 1470,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,760 L 1090,760" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,760 L 1090,760" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,990 L 1090,990" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,990 L 1090,990" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 650,620 L 650,1085" stroke="#9B8554" stroke-width="14"/>
+<path d="M 650,620 L 650,1085" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1020,620 L 1020,1085" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1020,620 L 1020,1085" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1385,610 L 1385,700" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1385,610 L 1385,700" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1680,470 L 2190,470" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1680,470 L 2190,470" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1680,700 L 2200,700" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1680,700 L 2200,700" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1800,320 L 1800,1080" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1800,320 L 1800,1080" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1980,320 L 1980,1080" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1980,320 L 1980,1080" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1320,1230 L 2100,1230" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1320,1230 L 2100,1230" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1320,1390 L 2090,1390" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1320,1390 L 2090,1390" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1520,1110 L 1520,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1520,1110 L 1520,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1720,1110 L 1720,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1720,1110 L 1720,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1920,1110 L 1920,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1920,1110 L 1920,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 510,1230 L 1290,1230" stroke="#9B8554" stroke-width="14"/>
+<path d="M 510,1230 L 1290,1230" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 510,1390 L 1290,1390" stroke="#9B8554" stroke-width="14"/>
+<path d="M 510,1390 L 1290,1390" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 650,1110 L 650,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 650,1110 L 650,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 850,1110 L 850,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 850,1110 L 850,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 240,1180 L 470,1180" stroke="#C9B274" stroke-width="6"/>
+<path d="M 240,1280 L 430,1280" stroke="#C9B274" stroke-width="6"/>
+<path d="M 240,1380 L 450,1390" stroke="#C9B274" stroke-width="6"/>
+<path d="M 240,1470 L 440,1470" stroke="#C9B274" stroke-width="6"/>
+</g>
+<g id="ext-roads" stroke-linecap="round" fill="none">
+<path d="M 50,900 L 210,900" stroke="#9B8554" stroke-width="22"/>
+<path d="M 50,900 L 210,900" stroke="#EBD9A5" stroke-width="18"/>
+<path d="M 1100,200 L 1100,50" stroke="#9B8554" stroke-width="22"/>
+<path d="M 1100,200 L 1100,50" stroke="#EBD9A5" stroke-width="18"/>
+<path d="M 1100,1600 L 1100,1750" stroke="#9B8554" stroke-width="22"/>
+<path d="M 1100,1600 L 1100,1750" stroke="#EBD9A5" stroke-width="18"/>
+<path d="M 2230,870 L 2390,870" stroke="#3A2A20" stroke-width="8" stroke-dasharray="14,10"/>
+</g>
+<polygon points="220,290 260,230 1100,200 1900,220 2160,280 2210,350 2230,900 2210,1450 2160,1540 1900,1580 1100,1600 260,1570 220,1500 200,900" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="4"/>
+<polygon points="247.82351214303287,305.8067128786001 286.85430526013874,247.40247939218102 1108.5791899258033,230.82851764546902 1878.7419150152234,243.9184828695303 2134.001207775502,298.6564413237728 2182.582914241562,366.50161836046516 2198.0000093377125,900.0244461349597 2182.5640066833034,1433.5298369550821 2134.26548022257,1520.980681089348 1878.7169727207076,1556.1037084502868 1108.5954530210656,1569.1760127925888 286.871219326397,1552.6236490622264 247.95022632778492,1484.4184452564707 231.99999319174938,900.0208740986247" fill="none" stroke="#9B8657" stroke-width="2"/>
+<g id="districts2" pointer-events="none">
+<polygon points="220,300 470,290 470,1080 220,1090" fill="#9CB1BC" stroke="#5C737E" stroke-width="2"/>
+<polygon points="220,1090 470,1080 490,1540 220,1545" fill="#5F5660" stroke="#3A3338" stroke-width="2"/>
+<polygon points="470,290 1620,290 1620,650 1200,650 1150,700 1150,1095 470,1095" fill="#D4B488" stroke="#8E6B3A" stroke-width="2"/>
+<polygon points="1200,650 1570,650 1620,700 1620,1045 1570,1095 1200,1095 1150,1045 1150,700" fill="#F2EDDC" stroke="#5C5650" stroke-width="2"/>
+<polygon points="1620,290 2210,290 2230,900 2160,1095 1620,1095" fill="#EDE0C2" stroke="#A88E4A" stroke-width="2"/>
+<polygon points="1300,1095 2160,1095 2120,1540 1300,1540" fill="#E8D8B0" stroke="#9B8454" stroke-width="2"/>
+<polygon points="490,1095 1300,1095 1300,1540 490,1540" fill="#9C9690" stroke="#5E5A55" stroke-width="2"/>
+</g>
+<g id="roads2" stroke-linecap="round" stroke-linejoin="round" fill="none" pointer-events="none">
+<path d="M 230,900 L 470,900 L 800,900 L 1100,900" stroke="#9B8554" stroke-width="26"/>
+<path d="M 230,900 L 470,900 L 800,900 L 1100,900" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,610 L 1660,610 L 1660,1135 L 1100,1135 L 1100,610" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,610 L 1660,610 L 1660,1135 L 1100,1135 L 1100,610" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,230 L 1100,610" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,230 L 1100,610" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,1135 L 1100,1580" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,1135 L 1100,1580" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1660,870 L 1960,870 L 2230,870" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1660,870 L 1960,870 L 2230,870" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 1100,900 L 1300,900" stroke="#9B8554" stroke-width="26"/>
+<path d="M 1100,900 L 1300,900" stroke="#EBD9A5" stroke-width="22"/>
+<path d="M 310,350 L 310,800 L 310,1050" stroke="#9B8554" stroke-width="14"/>
+<path d="M 310,350 L 310,800 L 310,1050" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 240,600 L 440,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 240,600 L 440,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 240,850 L 440,850" stroke="#9B8554" stroke-width="14"/>
+<path d="M 240,850 L 440,850" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 300,1130 L 310,1330 L 320,1500" stroke="#9B8554" stroke-width="14"/>
+<path d="M 300,1130 L 310,1330 L 320,1500" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,420 L 1080,420 L 1600,420" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,420 L 1080,420 L 1600,420" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,540 L 1080,540" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,540 L 1080,540" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 700,320 L 700,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 700,320 L 700,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 900,320 L 900,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 900,320 L 900,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1300,320 L 1300,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1300,320 L 1300,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1470,320 L 1470,600" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1470,320 L 1470,600" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,760 L 1090,760" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,760 L 1090,760" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 500,990 L 1090,990" stroke="#9B8554" stroke-width="14"/>
+<path d="M 500,990 L 1090,990" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 650,620 L 650,1085" stroke="#9B8554" stroke-width="14"/>
+<path d="M 650,620 L 650,1085" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1020,620 L 1020,1085" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1020,620 L 1020,1085" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1385,610 L 1385,700" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1385,610 L 1385,700" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1680,470 L 2190,470" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1680,470 L 2190,470" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1680,700 L 2200,700" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1680,700 L 2200,700" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1800,320 L 1800,1080" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1800,320 L 1800,1080" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1980,320 L 1980,1080" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1980,320 L 1980,1080" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1320,1230 L 2100,1230" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1320,1230 L 2100,1230" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1320,1390 L 2090,1390" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1320,1390 L 2090,1390" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1520,1110 L 1520,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1520,1110 L 1520,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1720,1110 L 1720,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1720,1110 L 1720,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 1920,1110 L 1920,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 1920,1110 L 1920,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 510,1230 L 1290,1230" stroke="#9B8554" stroke-width="14"/>
+<path d="M 510,1230 L 1290,1230" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 510,1390 L 1290,1390" stroke="#9B8554" stroke-width="14"/>
+<path d="M 510,1390 L 1290,1390" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 650,1110 L 650,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 650,1110 L 650,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 850,1110 L 850,1520" stroke="#9B8554" stroke-width="14"/>
+<path d="M 850,1110 L 850,1520" stroke="#DCC78C" stroke-width="11"/>
+<path d="M 240,1180 L 470,1180" stroke="#C9B274" stroke-width="6"/>
+<path d="M 240,1280 L 430,1280" stroke="#C9B274" stroke-width="6"/>
+<path d="M 240,1380 L 450,1390" stroke="#C9B274" stroke-width="6"/>
+<path d="M 240,1470 L 440,1470" stroke="#C9B274" stroke-width="6"/>
+</g>
+<g id="generic-buildings" pointer-events="none">
+<rect x="365" y="394" width="31" height="28" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="410" y="362" width="34" height="43" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="377" y="762" width="48" height="40" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="246" y="418" width="46" height="45" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="399" y="653" width="52" height="54" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="300" y="302" width="39" height="34" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="386" y="968" width="60" height="56" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="235" y="326" width="50" height="49" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="384" y="299" width="58" height="45" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="231" y="1041" width="36" height="26" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="349" y="931" width="39" height="30" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="238" y="483" width="44" height="34" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="246" y="938" width="36" height="26" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="336" y="1024" width="36" height="27" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="419" y="1031" width="30" height="34" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="410" y="933" width="52" height="28" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="252" y="972" width="36" height="36" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="230" y="692" width="44" height="44" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="420" y="423" width="41" height="30" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="347" y="347" width="28" height="27" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="406" y="552" width="39" height="28" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="257" y="382" width="29" height="26" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="326" y="458" width="39" height="48" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="397" y="716" width="64" height="38" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="334" y="982" width="35" height="32" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="380" y="1035" width="31" height="27" fill="#A88B6E" stroke="#503820" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="368" y="1110" width="28" height="33" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="251" y="1107" width="26" height="26" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="422" y="1322" width="20" height="36" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="377" y="1306" width="28" height="24" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="445" y="1490" width="37" height="28" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="390" y="1481" width="40" height="44" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="233" y="1302" width="33" height="31" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="424" y="1212" width="27" height="30" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="435" y="1133" width="22" height="34" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="315" y="1097" width="37" height="25" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="272" y="1505" width="26" height="29" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="230" y="1232" width="37" height="36" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="449" y="1301" width="28" height="39" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="449" y="1426" width="27" height="21" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="433" y="1253" width="26" height="41" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="230" y="1418" width="21" height="31" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="408" y="1094" width="22" height="22" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="333" y="1131" width="21" height="31" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="227" y="1488" width="38" height="43" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="235" y="1342" width="40" height="29" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="450" y="1367" width="21" height="40" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="391" y="1340" width="20" height="32" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="350" y="1504" width="28" height="23" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="228" y="1145" width="33" height="22" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="384" y="1189" width="33" height="28" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="442" y="1092" width="27" height="22" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="407" y="1127" width="21" height="37" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="232" y="1191" width="21" height="27" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="444" y="1456" width="26" height="27" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="355" y="1440" width="45" height="21" fill="#7E6850" stroke="#3A2A18" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2074" y="1303" width="51" height="46" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1832" y="1114" width="51" height="29" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1785" y="1435" width="51" height="36" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1653" y="1447" width="43" height="37" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2083" y="1135" width="32" height="46" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1863" y="1434" width="32" height="46" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1573" y="1445" width="35" height="28" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1413" y="1413" width="43" height="28" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1982" y="1287" width="44" height="46" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1361" y="1166" width="46" height="46" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1370" y="1442" width="34" height="38" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1599" y="1482" width="39" height="39" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1762" y="1163" width="47" height="33" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1317" y="1294" width="49" height="42" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1942" y="1156" width="33" height="51" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2076" y="1458" width="44" height="34" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1968" y="1451" width="34" height="42" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1760" y="1109" width="35" height="30" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2006" y="1126" width="55" height="37" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1450" y="1448" width="45" height="38" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1739" y="1495" width="39" height="28" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1807" y="1487" width="50" height="39" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2012" y="1453" width="45" height="29" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1446" y="1335" width="46" height="37" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2091" y="1415" width="34" height="28" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1560" y="1406" width="40" height="30" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1638" y="1169" width="45" height="36" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1421" y="1179" width="32" height="32" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2045" y="1251" width="61" height="45" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1839" y="1170" width="36" height="34" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2001" y="1341" width="58" height="33" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1388" y="1334" width="34" height="31" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1355" y="1488" width="43" height="31" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1316" y="1439" width="43" height="39" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1939" y="1248" width="50" height="30" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1736" y="1253" width="39" height="44" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1994" y="1503" width="43" height="29" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1937" y="1302" width="33" height="48" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1565" y="1179" width="50" height="35" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1540" y="1480" width="49" height="50" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1941" y="1406" width="59" height="35" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1662" y="1501" width="37" height="29" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2040" y="1414" width="44" height="32" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1330" y="1249" width="56" height="31" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2090" y="1368" width="37" height="38" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1423" y="1498" width="42" height="34" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1743" y="1427" width="34" height="40" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1768" y="1345" width="61" height="28" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2008" y="1175" width="45" height="36" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1959" y="1117" width="32" height="32" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2078" y="1499" width="36" height="31" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1845" y="1343" width="33" height="29" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1536" y="1261" width="33" height="30" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1539" y="1328" width="37" height="43" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1466" y="1169" width="33" height="44" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1996" y="1248" width="41" height="32" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1641" y="1407" width="53" height="30" fill="#C8A878" stroke="#7A5230" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="819" y="448" width="33" height="45" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1390" y="354" width="34" height="37" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="928" y="625" width="64" height="33" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="522" y="442" width="47" height="48" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1206" y="299" width="58" height="62" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1325" y="461" width="53" height="60" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="800" y="625" width="45" height="35" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="724" y="468" width="67" height="53" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="976" y="331" width="39" height="32" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1004" y="437" width="53" height="35" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1190" y="488" width="53" height="52" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="792" y="304" width="61" height="42" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="716" y="568" width="55" height="32" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="990" y="559" width="64" height="42" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1494" y="305" width="65" height="59" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="600" y="331" width="55" height="54" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="837" y="671" width="37" height="47" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="499" y="309" width="51" height="53" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="515" y="571" width="64" height="41" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1551" y="507" width="33" height="62" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1141" y="509" width="33" height="41" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1389" y="464" width="48" height="53" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1329" y="329" width="44" height="40" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="938" y="439" width="30" height="45" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1506" y="460" width="38" height="38" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1510" y="510" width="32" height="49" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1132" y="317" width="31" height="48" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="607" y="453" width="38" height="58" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="927" y="315" width="42" height="49" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1363" y="530" width="45" height="42" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="826" y="359" width="52" height="45" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="718" y="308" width="64" height="35" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1161" y="372" width="46" height="30" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1576" y="353" width="30" height="46" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="800" y="570" width="51" height="47" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="909" y="697" width="60" height="39" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="488" y="784" width="45" height="32" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="938" y="567" width="36" height="47" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="636" y="558" width="30" height="30" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="557" y="336" width="34" height="52" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1554" y="440" width="49" height="39" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="480" y="1027" width="53" height="58" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1022" y="332" width="31" height="32" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="745" y="367" width="66" height="33" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1252" y="462" width="32" height="57" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="827" y="784" width="36" height="31" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="591" y="568" width="36" height="33" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1036" y="830" width="32" height="38" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="990" y="491" width="58" height="30" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="489" y="683" width="34" height="52" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="492" y="930" width="44" height="30" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="485" y="628" width="30" height="47" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1403" y="304" width="40" height="43" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="806" y="1039" width="31" height="46" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1189" y="441" width="31" height="31" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="591" y="609" width="41" height="36" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="681" y="615" width="58" height="35" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="666" y="785" width="34" height="40" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="483" y="371" width="56" height="32" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="580" y="930" width="33" height="35" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="974" y="790" width="30" height="62" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1038" y="643" width="31" height="41" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="874" y="617" width="45" height="35" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="479" y="825" width="34" height="38" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1130" y="436" width="43" height="50" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="875" y="779" width="49" height="35" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="555" y="778" width="46" height="33" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="961" y="371" width="55" height="32" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="749" y="620" width="39" height="31" fill="#B89673" stroke="#5A4226" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="563" y="1300" width="31" height="41" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1248" y="1259" width="31" height="30" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="752" y="1455" width="24" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="527" y="1158" width="40" height="25" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1138" y="1424" width="43" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1166" y="1280" width="26" height="29" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="700" y="1419" width="34" height="42" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="937" y="1286" width="39" height="40" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1176" y="1185" width="25" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="760" y="1161" width="33" height="37" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1150" y="1324" width="30" height="26" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="792" y="1252" width="25" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="514" y="1408" width="30" height="20" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1032" y="1306" width="33" height="24" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1205" y="1269" width="25" height="44" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="905" y="1251" width="41" height="27" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="794" y="1310" width="36" height="40" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="689" y="1486" width="30" height="44" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="593" y="1254" width="24" height="37" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="687" y="1115" width="44" height="28" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1017" y="1125" width="36" height="31" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="526" y="1112" width="25" height="37" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="897" y="1177" width="39" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="789" y="1435" width="40" height="42" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="866" y="1272" width="26" height="33" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="989" y="1288" width="27" height="26" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="593" y="1170" width="24" height="26" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1262" y="1408" width="27" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="961" y="1136" width="45" height="33" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="985" y="1332" width="37" height="36" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="994" y="1247" width="28" height="32" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="937" y="1336" width="40" height="26" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="878" y="1337" width="43" height="30" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="701" y="1253" width="32" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1233" y="1321" width="25" height="42" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="595" y="1111" width="26" height="29" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1035" y="1419" width="25" height="36" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="513" y="1303" width="41" height="41" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="586" y="1499" width="47" height="23" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="752" y="1484" width="36" height="33" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1041" y="1342" width="27" height="23" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="773" y="1118" width="32" height="26" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1267" y="1169" width="24" height="27" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="878" y="1129" width="24" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="523" y="1251" width="34" height="35" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="535" y="1502" width="27" height="28" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="723" y="1154" width="24" height="44" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1214" y="1174" width="45" height="32" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="993" y="1483" width="22" height="26" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1022" y="1187" width="34" height="23" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1227" y="1408" width="26" height="36" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1031" y="1252" width="28" height="38" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="741" y="1253" width="33" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1155" y="1246" width="30" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="799" y="1511" width="28" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="549" y="1351" width="34" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="666" y="1256" width="22" height="31" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="558" y="1106" width="23" height="29" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="766" y="1282" width="33" height="20" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="668" y="1180" width="46" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="923" y="1110" width="26" height="40" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="901" y="1305" width="28" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="802" y="1169" width="24" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1005" y="1406" width="23" height="32" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="503" y="1352" width="39" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="507" y="1441" width="39" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1270" y="1306" width="25" height="31" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="607" y="1324" width="24" height="25" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="750" y="1406" width="23" height="22" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="947" y="1188" width="41" height="24" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1188" y="1410" width="22" height="37" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1135" y="1284" width="23" height="28" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="501" y="1470" width="27" height="29" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1196" y="1336" width="25" height="30" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1142" y="1175" width="25" height="27" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="667" y="1409" width="24" height="37" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="553" y="1190" width="26" height="21" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="579" y="1407" width="45" height="20" fill="#8E867E" stroke="#3E3835" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2049" y="521" width="107" height="68" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1850" y="1011" width="71" height="65" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1913" y="900" width="85" height="58" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2071" y="753" width="77" height="77" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2035" y="926" width="78" height="73" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1855" y="334" width="64" height="75" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1633" y="494" width="104" height="53" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2000" y="601" width="99" height="54" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1868" y="562" width="72" height="90" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1720" y="589" width="109" height="67" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1701" y="1011" width="79" height="58" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2116" y="596" width="65" height="54" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1690" y="929" width="79" height="68" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1824" y="929" width="75" height="61" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1837" y="490" width="61" height="59" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2155" y="727" width="56" height="94" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2137" y="311" width="56" height="67" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2127" y="923" width="61" height="60" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2043" y="1012" width="59" height="70" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2002" y="740" width="59" height="54" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="2135" y="404" width="67" height="88" fill="#D8C39A" stroke="#7B5A30" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1340" y="1010" width="57" height="62" fill="#D8CFB8" stroke="#4A3D2A" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1247" y="1021" width="68" height="66" fill="#D8CFB8" stroke="#4A3D2A" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1546" y="782" width="46" height="53" fill="#D8CFB8" stroke="#4A3D2A" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1183" y="1019" width="43" height="40" fill="#D8CFB8" stroke="#4A3D2A" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1540" y="926" width="62" height="43" fill="#D8CFB8" stroke="#4A3D2A" stroke-width="1.5" filter="url(#shadow)"/>
+<rect x="1539" y="851" width="68" height="52" fill="#D8CFB8" stroke="#4A3D2A" stroke-width="1.5" filter="url(#shadow)"/>
+</g>
+<polygon points="1196,636 1576,636 1634,694 1634,1051 1576,1109 1194,1109 1136,1051 1136,694" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="3"/>
+<polygon points="1200,650 1570,650 1620,700 1620,1045 1570,1095 1200,1095 1150,1045 1150,700" fill="#F2EDDC" stroke="#9B8657" stroke-width="2"/>
+<rect x="1130" y="888" width="26" height="24" fill="#EBD9A5"/>
+<rect x="1373" y="630" width="24" height="26" fill="#EBD9A5"/>
+<circle cx="1196" cy="636" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<circle cx="1576" cy="636" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<circle cx="1634" cy="694" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<circle cx="1634" cy="1051" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<circle cx="1576" cy="1109" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<circle cx="1194" cy="1109" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<circle cx="1136" cy="1051" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<circle cx="1136" cy="694" r="16" fill="#E8E1C8" stroke="#8E7A4A" stroke-width="3"/>
+<g id="pois">
+<g class="poi" data-id="anchor_sq" data-name="Anchor Square" data-npc="" data-tooltip="Open cobblestone plaza just inside the Harbor Gate. Notice Board at center." data-services="Public notice board, customs check, frequent crier announcements." data-district="saltside" data-cat="notice" style="cursor:pointer">
+<rect x="240" y="540" width="140" height="110" fill="#E5D2A0" stroke="#5A4226" stroke-width="3" filter="url(#shadow)"/>
+<rect x="246" y="546" width="128" height="98" fill="none" stroke="#8E6B3A" stroke-width="2"/>
+<rect x="252" y="552" width="116" height="8" fill="#C49B65" stroke="#5A4226" stroke-width="1"/>
+<rect x="252" y="580" width="116" height="8" fill="#C49B65" stroke="#5A4226" stroke-width="1"/>
+<rect x="252" y="608" width="116" height="8" fill="#C49B65" stroke="#5A4226" stroke-width="1"/>
+<circle cx="310.0" cy="595.0" r="16" fill="#FAF6E8"/>
+<circle cx="310.0" cy="595.0" r="14" fill="#5E5040" stroke="#1F1F1F" stroke-width="2"/>
+<text x="310.0" y="600.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">N</text>
+<g transform="translate(310.0,668)">
+<rect x="-58" y="-12" width="116" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Anchor Square</text>
+</g>
+</g>
+<g class="poi" data-id="harlow" data-name="Harlow&#x27;s Chandlery" data-npc="Maren Harlow" data-tooltip="Ship supplies; knows every captain that puts in." data-services="Rope, lamp oil, sailcloth, pitch, ship&#x27;s biscuit. Free local rumors with purchase." data-district="saltside" data-cat="chandler" style="cursor:pointer">
+<rect x="380" y="470" width="70" height="60" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="415.0" cy="500.0" r="16" fill="#FAF6E8"/>
+<circle cx="415.0" cy="500.0" r="14" fill="#6E5C32" stroke="#1F1F1F" stroke-width="2"/>
+<text x="415.0" y="505.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">C</text>
+<g transform="translate(415.0,548)">
+<rect x="-78" y="-12" width="156" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Harlow&#x27;s Chandlery</text>
+</g>
+</g>
+<g class="poi" data-id="salted_keel" data-name="The Salted Keel" data-npc="Big Tomas" data-tooltip="Tavern. Dockworkers, gossip, watered ale." data-services="Beer 1c. Bowl of stew 3c. Bunk in the back 1s." data-district="saltside" data-cat="tavern" style="cursor:pointer">
+<rect x="290" y="670" width="90" height="70" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="335.0" cy="705.0" r="16" fill="#FAF6E8"/>
+<circle cx="335.0" cy="705.0" r="14" fill="#8B4F2A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="335.0" y="710.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">T</text>
+<g transform="translate(335.0,758)">
+<rect x="-66" y="-12" width="132" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Salted Keel</text>
+</g>
+</g>
+<g class="poi" data-id="pell_fish" data-name="Pell&#x27;s Fish Market" data-npc="Pell" data-tooltip="Open-air stalls. Fishmonger and waterfront intel." data-services="Daily catch. Pell hears everything spoken on a pier." data-district="saltside" data-cat="fish" style="cursor:pointer">
+<rect x="242" y="750" width="21" height="50" fill="#A87440" stroke="#3E2A18" stroke-width="1"/>
+<rect x="267" y="750" width="21" height="50" fill="#A87440" stroke="#3E2A18" stroke-width="1"/>
+<rect x="292" y="750" width="21" height="50" fill="#A87440" stroke="#3E2A18" stroke-width="1"/>
+<rect x="317" y="750" width="21" height="50" fill="#A87440" stroke="#3E2A18" stroke-width="1"/>
+<circle cx="290.0" cy="775.0" r="16" fill="#FAF6E8"/>
+<circle cx="290.0" cy="775.0" r="14" fill="#3F708E" stroke="#1F1F1F" stroke-width="2"/>
+<text x="290.0" y="780.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">F</text>
+<g transform="translate(290.0,818)">
+<rect x="-78" y="-12" width="156" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Pell&#x27;s Fish Market</text>
+</g>
+</g>
+<g class="poi" data-id="rusty_hook" data-name="The Rusty Hook" data-npc="Casta Vane" data-tooltip="Info broker. Basement fighting pit. Discreet rooms." data-services="Information 5–50 Nectar. Side-bets on the pit. No questions about the basement." data-district="rotgut" data-cat="gambling" style="cursor:pointer">
+<rect x="280" y="1180" width="90" height="90" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="325.0" cy="1225.0" r="16" fill="#FAF6E8"/>
+<circle cx="325.0" cy="1225.0" r="14" fill="#1F1F1F" stroke="#1F1F1F" stroke-width="2"/>
+<text x="325.0" y="1230.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">$</text>
+<g transform="translate(325.0,1288)">
+<rect x="-62" y="-12" width="124" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Rusty Hook</text>
+</g>
+</g>
+<g class="poi" data-id="silken_lantern" data-name="Silken Lantern" data-npc="Madame Orla" data-tooltip="Brothel. Trades in favors as often as coin." data-services="Companionship; secrets; debts owed in either direction." data-district="rotgut" data-cat="luxury" style="cursor:pointer">
+<rect x="290" y="1320" width="70" height="60" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="325.0" cy="1350.0" r="16" fill="#FAF6E8"/>
+<circle cx="325.0" cy="1350.0" r="14" fill="#6B4F8E" stroke="#1F1F1F" stroke-width="2"/>
+<text x="325.0" y="1355.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">L</text>
+<g transform="translate(325.0,1398)">
+<rect x="-62" y="-12" width="124" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Silken Lantern</text>
+</g>
+</g>
+<g class="poi" data-id="dregs" data-name="The Dregs" data-npc="Wicket" data-tooltip="Black-market alchemist. No receipts. No questions." data-services="Anything you couldn&#x27;t buy at the Verdant Flask. Double the price." data-district="rotgut" data-cat="alchemy" style="cursor:pointer">
+<rect x="380" y="1240" width="22" height="50" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="391.0" cy="1265.0" r="16" fill="#FAF6E8"/>
+<circle cx="391.0" cy="1265.0" r="14" fill="#3D6B4D" stroke="#1F1F1F" stroke-width="2"/>
+<text x="391.0" y="1270.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">P</text>
+<g transform="translate(391.0,1308)">
+<rect x="-42" y="-12" width="84" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Dregs</text>
+</g>
+</g>
+<g class="poi" data-id="bare_knuckle" data-name="Bare Knuckle Row" data-npc="" data-tooltip="Dead-end alley with three small fight venues." data-services="Cash bouts. House cut 20%. No magic, no weapons." data-district="rotgut" data-cat="gambling" style="cursor:pointer">
+<rect x="290" y="1402" width="140" height="25" fill="#3E3530" stroke="#1F1F1F" stroke-width="2"/>
+<circle cx="360.0" cy="1414.5" r="16" fill="#FAF6E8"/>
+<circle cx="360.0" cy="1414.5" r="14" fill="#1F1F1F" stroke="#1F1F1F" stroke-width="2"/>
+<text x="360.0" y="1419.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">$</text>
+<g transform="translate(360.0,1445)">
+<rect x="-70" y="-12" width="140" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Bare Knuckle Row</text>
+</g>
+</g>
+<g class="poi" data-id="thornwall_sq" data-name="Thornwall Square" data-npc="" data-tooltip="Central market. Iron thorn-pattern fence. The City Notice Board." data-services="Permanent stalls; daily criers; the Notice Board (job postings, bounties, reports of the missing)." data-district="thornwall" data-cat="notice" style="cursor:pointer">
+<rect x="720" y="830" width="240" height="150" fill="#E5D2A0" stroke="#5A4226" stroke-width="3" filter="url(#shadow)"/>
+<rect x="726" y="836" width="228" height="138" fill="none" stroke="#8E6B3A" stroke-width="2"/>
+<rect x="732" y="842" width="216" height="8" fill="#C49B65" stroke="#5A4226" stroke-width="1"/>
+<rect x="732" y="884" width="216" height="8" fill="#C49B65" stroke="#5A4226" stroke-width="1"/>
+<rect x="732" y="926" width="216" height="8" fill="#C49B65" stroke="#5A4226" stroke-width="1"/>
+<circle cx="840.0" cy="905.0" r="16" fill="#FAF6E8"/>
+<circle cx="840.0" cy="905.0" r="14" fill="#5E5040" stroke="#1F1F1F" stroke-width="2"/>
+<text x="840.0" y="910.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">N</text>
+<g transform="translate(840.0,998)">
+<rect x="-70" y="-12" width="140" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Thornwall Square</text>
+</g>
+</g>
+<g class="poi" data-id="brannick" data-name="Brannick&#x27;s Arms" data-npc="Hal Brannick" data-tooltip="Weaponsmith. Fair prices, good steel." data-services="Common weapons at PHB price. Custom commissions take 1d4 days." data-district="thornwall" data-cat="weapon" style="cursor:pointer">
+<rect x="700" y="665" width="80" height="70" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="740.0" cy="700.0" r="16" fill="#FAF6E8"/>
+<circle cx="740.0" cy="700.0" r="14" fill="#5C2C1F" stroke="#1F1F1F" stroke-width="2"/>
+<text x="740.0" y="705.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">W</text>
+<g transform="translate(740.0,753)">
+<rect x="-66" y="-12" width="132" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Brannick&#x27;s Arms</text>
+</g>
+</g>
+<g class="poi" data-id="ironhide" data-name="Ironhide Outfitters" data-npc="Dessa Ironhide (Bestial — bear)" data-tooltip="Armorsmith. Bestial bear-folk; quiet, exacting." data-services="Armor at PHB price. Repairs same-day. Will refuse jobs from anyone she doesn&#x27;t like." data-district="thornwall" data-cat="armor" style="cursor:pointer">
+<rect x="700" y="1005" width="80" height="70" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="740.0" cy="1040.0" r="16" fill="#FAF6E8"/>
+<circle cx="740.0" cy="1040.0" r="14" fill="#494C56" stroke="#1F1F1F" stroke-width="2"/>
+<text x="740.0" y="1045.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">A</text>
+<g transform="translate(740.0,1093)">
+<rect x="-82" y="-12" width="164" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Ironhide Outfitters</text>
+</g>
+</g>
+<g class="poi" data-id="verdant_flask" data-name="The Verdant Flask" data-npc="Aldric Moss" data-tooltip="Apothecary. Legitimate potions only." data-services="Healing potions, antitoxin, basic alchemy. Will report unusual orders." data-district="thornwall" data-cat="alchemy" style="cursor:pointer">
+<rect x="545" y="665" width="65" height="60" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="577.5" cy="695.0" r="16" fill="#FAF6E8"/>
+<circle cx="577.5" cy="695.0" r="14" fill="#3D6B4D" stroke="#1F1F1F" stroke-width="2"/>
+<text x="577.5" y="700.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">P</text>
+<g transform="translate(577.5,743)">
+<rect x="-74" y="-12" width="148" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Verdant Flask</text>
+</g>
+</g>
+<g class="poi" data-id="crossed_keys" data-name="The Crossed Keys Inn" data-npc="Jorik &amp; Maren Tallow" data-tooltip="Two-story inn. Retired adventurers; the best beds in Thornwall." data-services="Room 8s/night. Hot meal 3s. Will hold messages and packages free of charge." data-district="thornwall" data-cat="inn" style="cursor:pointer">
+<rect x="860" y="1005" width="110" height="80" fill="#D8C39A" stroke="#5A4226" stroke-width="3" filter="url(#shadow)"/>
+<line x1="860" y1="1045" x2="970" y2="1045" stroke="#5A4226" stroke-width="1"/>
+<circle cx="915.0" cy="1045.0" r="16" fill="#FAF6E8"/>
+<circle cx="915.0" cy="1045.0" r="14" fill="#7C5230" stroke="#1F1F1F" stroke-width="2"/>
+<text x="915.0" y="1050.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">I</text>
+<g transform="translate(915.0,1103)">
+<rect x="-86" y="-12" width="172" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Crossed Keys Inn</text>
+</g>
+</g>
+<g class="poi" data-id="thorn_thread" data-name="Thorn &amp; Thread" data-npc="Syl (Faelari)" data-tooltip="Tailor. Faelari. Doesn&#x27;t talk about home." data-services="Custom garments, repairs, dyeing. Excellent work; cold demeanor." data-district="thornwall" data-cat="tailor" style="cursor:pointer">
+<rect x="550" y="830" width="50" height="50" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="575.0" cy="855.0" r="16" fill="#FAF6E8"/>
+<circle cx="575.0" cy="855.0" r="14" fill="#8E6FA0" stroke="#1F1F1F" stroke-width="2"/>
+<text x="575.0" y="860.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">S</text>
+<g transform="translate(575.0,898)">
+<rect x="-62" y="-12" width="124" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Thorn &amp; Thread</text>
+</g>
+</g>
+<g class="poi" data-id="ashmore" data-name="Ashmore&#x27;s Curios" data-npc="Prof. Emery Ashmore" data-tooltip="Maps, oddities, eccentric scholar. Will talk your ear off." data-services="Regional maps 5–50g. Trinkets. Free lecture with purchase." data-district="thornwall" data-cat="scholar" style="cursor:pointer">
+<rect x="550" y="1010" width="55" height="55" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="577.5" cy="1037.5" r="16" fill="#FAF6E8"/>
+<circle cx="577.5" cy="1037.5" r="14" fill="#4A4070" stroke="#1F1F1F" stroke-width="2"/>
+<text x="577.5" y="1042.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">M</text>
+<g transform="translate(577.5,1083)">
+<rect x="-70" y="-12" width="140" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Ashmore&#x27;s Curios</text>
+</g>
+</g>
+<g class="poi" data-id="millstone" data-name="Millstone Bakery" data-npc="Bren Millstone" data-tooltip="Best bread in Bastion. Quietly charitable." data-services="Loaves 2c. Day-old bread free to those who ask politely." data-district="hearthside" data-cat="bakery" style="cursor:pointer">
+<rect x="1400" y="1255" width="60" height="55" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="1430.0" cy="1282.5" r="16" fill="#FAF6E8"/>
+<circle cx="1430.0" cy="1282.5" r="14" fill="#A87440" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1430.0" y="1287.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">B</text>
+<g transform="translate(1430.0,1328)">
+<rect x="-70" y="-12" width="140" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Millstone Bakery</text>
+</g>
+</g>
+<g class="poi" data-id="chapel_green" data-name="Chapel of the Green" data-npc="Sister Wynn" data-tooltip="Open-air shrine. Healer, counselor, warm fire." data-services="Free first aid. Donations welcomed. Will not turn anyone away." data-district="hearthside" data-cat="temple" style="cursor:pointer">
+<rect x="1590" y="1270" width="90" height="80" fill="#9CC079" stroke="#3E5A24" stroke-width="2"/>
+<rect x="1612.5" y="1290.0" width="45.0" height="40.0" fill="#D8C39A" stroke="#5A4226" stroke-width="2"/>
+<circle cx="1635.0" cy="1310.0" r="16" fill="#FAF6E8"/>
+<circle cx="1635.0" cy="1310.0" r="14" fill="#5A8C4A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1635.0" y="1315.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">+</text>
+<g transform="translate(1635.0,1368)">
+<rect x="-82" y="-12" width="164" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Chapel of the Green</text>
+</g>
+</g>
+<g class="poi" data-id="ketter" data-name="Ketter&#x27;s Boarding House" data-npc="Old Ketter" data-tooltip="Cheap long-term lodging. Rooms by the week." data-services="Bed 4s/week. Three meals 1g/week. No questions." data-district="hearthside" data-cat="inn" style="cursor:pointer">
+<rect x="1790" y="1255" width="90" height="75" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="1835.0" cy="1292.5" r="16" fill="#FAF6E8"/>
+<circle cx="1835.0" cy="1292.5" r="14" fill="#7C5230" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1835.0" y="1297.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">I</text>
+<g transform="translate(1835.0,1348)">
+<rect x="-98" y="-12" width="196" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Ketter&#x27;s Boarding House</text>
+</g>
+</g>
+<g class="poi" data-id="velvet_stone" data-name="Velvet &amp; Stone" data-npc="Lucien Ashford" data-tooltip="High-end tailor and jeweler. Insufferable. Excellent." data-services="Bespoke garments 50g+. Jewelry by commission. Will name-drop relentlessly." data-district="crest" data-cat="luxury" style="cursor:pointer">
+<rect x="1700" y="760" width="60" height="90" fill="#D8C39A" stroke="#7B5A30" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="1730.0" cy="805.0" r="16" fill="#FAF6E8"/>
+<circle cx="1730.0" cy="805.0" r="14" fill="#6B4F8E" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1730.0" y="810.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">L</text>
+<g transform="translate(1730.0,868)">
+<rect x="-62" y="-12" width="124" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Velvet &amp; Stone</text>
+</g>
+</g>
+<g class="poi" data-id="gilded_rest" data-name="The Gilded Rest" data-npc="Castellan Dore" data-tooltip="Finest inn in Bastion outside the castle." data-services="Suite 5g/night. Private dining. The kind of place deals get made." data-district="crest" data-cat="inn" style="cursor:pointer">
+<rect x="1835" y="755" width="130" height="100" fill="#D8C39A" stroke="#7B5A30" stroke-width="3" filter="url(#shadow)"/>
+<line x1="1841" y1="763" x2="1959" y2="763" stroke="#8E6B3A" stroke-width="2"/>
+<line x1="1841" y1="847" x2="1959" y2="847" stroke="#8E6B3A" stroke-width="2"/>
+<circle cx="1900.0" cy="805.0" r="16" fill="#FAF6E8"/>
+<circle cx="1900.0" cy="805.0" r="14" fill="#7C5230" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1900.0" y="810.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">I</text>
+<g transform="translate(1900.0,873)">
+<rect x="-66" y="-12" width="132" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Gilded Rest</text>
+</g>
+</g>
+<g class="poi" data-id="warden_hall" data-name="Warden&#x27;s Hall" data-npc="Capt. Lorna Vetch" data-tooltip="City Watch HQ. Capt. Vetch is honest — a possible ally." data-services="File reports. Request escort. Bounties posted weekly." data-district="crest" data-cat="guard" style="cursor:pointer">
+<rect x="1690" y="340" width="130" height="100" fill="#A8987E" stroke="#1F1F1F" stroke-width="4" filter="url(#shadow)"/>
+<rect x="1700" y="350" width="110" height="80" fill="#C4B690" stroke="#5A4226" stroke-width="2"/>
+<circle cx="1755.0" cy="390.0" r="16" fill="#FAF6E8"/>
+<circle cx="1755.0" cy="390.0" r="14" fill="#7C2A2A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1755.0" y="395.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">G</text>
+<g transform="translate(1755.0,458)">
+<rect x="-58" y="-12" width="116" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Warden&#x27;s Hall</text>
+</g>
+</g>
+<g class="poi" data-id="ashvale_garden" data-name="Ashvale Memorial Garden" data-npc="Bessa" data-tooltip="Manicured garden. Bessa tends it; she served the Ashvales of Withered Manor." data-services="Open dawn–dusk. Bessa knows old Ashvale secrets if you earn her trust." data-district="crest" data-cat="garden" style="cursor:pointer">
+<rect x="2020" y="360" width="90" height="130" fill="#7CA855" stroke="#3E5A24" stroke-width="3"/>
+<circle cx="2051" cy="421" r="3" fill="#F8E48A"/>
+<circle cx="2104" cy="408" r="3" fill="#E8C45A"/>
+<circle cx="2055" cy="409" r="3" fill="#E8C45A"/>
+<circle cx="2031" cy="455" r="3" fill="#F8E48A"/>
+<circle cx="2096" cy="366" r="3" fill="#E8C45A"/>
+<circle cx="2059" cy="417" r="3" fill="#B47AC8"/>
+<circle cx="2095" cy="484" r="3" fill="#E8C45A"/>
+<circle cx="2070" cy="407" r="3" fill="#F8E48A"/>
+<circle cx="2067" cy="377" r="3" fill="#B47AC8"/>
+<circle cx="2046" cy="452" r="3" fill="#F8E48A"/>
+<circle cx="2104" cy="438" r="3" fill="#F8E48A"/>
+<circle cx="2027" cy="415" r="3" fill="#B47AC8"/>
+<circle cx="2096" cy="439" r="3" fill="#B47AC8"/>
+<circle cx="2089" cy="383" r="3" fill="#E8C45A"/>
+<circle cx="2065.0" cy="425.0" r="16" fill="#FAF6E8"/>
+<circle cx="2065.0" cy="425.0" r="14" fill="#5E8C2E" stroke="#1F1F1F" stroke-width="2"/>
+<text x="2065.0" y="430.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">&</text>
+<g transform="translate(2065.0,508)">
+<rect x="-98" y="-12" width="196" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Ashvale Memorial Garden</text>
+</g>
+</g>
+<g class="poi" data-id="dented_shield" data-name="The Dented Shield" data-npc="Gorran" data-tooltip="Wilt tavern and social hub near the South Gate. Gorran knows who&#x27;s gone missing." data-services="Beer 1c. Stew 2c. Gorran keeps a list of names no one else writes down." data-district="wilt" data-cat="tavern" style="cursor:pointer">
+<rect x="890" y="1440" width="90" height="60" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="935.0" cy="1470.0" r="16" fill="#FAF6E8"/>
+<circle cx="935.0" cy="1470.0" r="14" fill="#8B4F2A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="935.0" y="1475.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">T</text>
+<g transform="translate(935.0,1518)">
+<rect x="-74" y="-12" width="148" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Dented Shield</text>
+</g>
+</g>
+<g class="poi" data-id="mara_mending" data-name="Mara&#x27;s Mending" data-npc="Mara" data-tooltip="Half-blind seamstress. Excellent repairs." data-services="Patch &amp; repair clothing/armor 5–20c. Half-price for the desperate." data-district="wilt" data-cat="tailor" style="cursor:pointer">
+<rect x="700" y="1300" width="50" height="45" fill="#B89673" stroke="#5A4226" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="725.0" cy="1322.5" r="16" fill="#FAF6E8"/>
+<circle cx="725.0" cy="1322.5" r="14" fill="#8E6FA0" stroke="#1F1F1F" stroke-width="2"/>
+<text x="725.0" y="1327.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">S</text>
+<g transform="translate(725.0,1363)">
+<rect x="-62" y="-12" width="124" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Mara&#x27;s Mending</text>
+</g>
+</g>
+<g class="poi" data-id="shelter_w" data-name="The Shelter" data-npc="" data-tooltip="Unmarked refuge run by the Chapel of the Green — a hot meal and a dry floor, no charge." data-services="Last-resort beds for those who can&#x27;t afford the Wilt&#x27;s cheapest rooms; Sister Wynn&#x27;s network, funded by quiet Hearthside donors." data-district="wilt" data-cat="shelter" style="cursor:pointer">
+<rect x="560" y="1440" width="50" height="45" fill="#A8978A" stroke="#3E3835" stroke-width="1"/>
+<circle cx="585.0" cy="1462.5" r="16" fill="#FAF6E8"/>
+<circle cx="585.0" cy="1462.5" r="14" fill="#7C8480" stroke="#1F1F1F" stroke-width="2"/>
+<text x="585.0" y="1467.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">H</text>
+<g transform="translate(585.0,1503)">
+<rect x="-50" y="-12" width="100" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Shelter</text>
+</g>
+</g>
+<g class="poi" data-id="labor_wall" data-name="Day Labor Wall" data-npc="" data-tooltip="A stone wall near the South Gate where employers post the day&#x27;s work notices. Crowded before dawn; empty by mid-morning." data-services="Unskilled labor 1–3 Nectar/day. Where new arrivals end up if luck doesn&#x27;t break." data-district="wilt" data-cat="labor" style="cursor:pointer">
+<rect x="1140" y="1470" width="140" height="45" fill="#6E6660" stroke="#3E3835" stroke-width="2"/>
+<circle cx="1233" cy="1496" r="2" fill="#1F1F1F"/>
+<circle cx="1195" cy="1499" r="2" fill="#1F1F1F"/>
+<circle cx="1260" cy="1490" r="2" fill="#1F1F1F"/>
+<circle cx="1219" cy="1476" r="2" fill="#1F1F1F"/>
+<circle cx="1201" cy="1483" r="2" fill="#1F1F1F"/>
+<circle cx="1224" cy="1494" r="2" fill="#1F1F1F"/>
+<circle cx="1183" cy="1503" r="2" fill="#1F1F1F"/>
+<circle cx="1171" cy="1494" r="2" fill="#1F1F1F"/>
+<circle cx="1210.0" cy="1492.5" r="16" fill="#FAF6E8"/>
+<circle cx="1210.0" cy="1492.5" r="14" fill="#5A5A5A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1210.0" y="1497.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">?</text>
+<g transform="translate(1210.0,1533)">
+<rect x="-62" y="-12" width="124" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Day Labor Wall</text>
+</g>
+</g>
+<g class="poi" data-id="storm_drain" data-name="South Gate Storm Drain" data-npc="" data-tooltip="A canonical Undergrowth entry — a grate that drops into the tunnels and on toward the deep cisterns." data-services="Not a destination: a way down for those who know the grates." data-district="wilt" data-cat="drain" style="cursor:pointer">
+<rect x="1035" y="1490" width="34" height="34" fill="#3E3530" stroke="#1F1F1F" stroke-width="2"/>
+<circle cx="1052.0" cy="1507.0" r="16" fill="#FAF6E8"/>
+<circle cx="1052.0" cy="1507.0" r="14" fill="#2E3A40" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1052.0" y="1512.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">U</text>
+<g transform="translate(1052.0,1542)">
+<rect x="-94" y="-12" width="188" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">South Gate Storm Drain</text>
+</g>
+</g>
+<g class="poi" data-id="main_keep" data-name="The Petalguard Keep" data-npc="The King" data-tooltip="Seat of the King, at the city&#x27;s center and highest ground. White stone, four corner towers within the citadel wall." data-services="Audiences by appointment. The Petalguard control all access." data-district="castle" data-cat="castle" style="cursor:pointer">
+<rect x="1330" y="780" width="190" height="200" fill="#F5EFD8" stroke="#1F1F1F" stroke-width="4" filter="url(#shadow)"/>
+<rect x="1342" y="792" width="166" height="176" fill="#E8E1C8" stroke="#5A4226" stroke-width="2"/>
+<circle cx="1330" cy="780" r="14" fill="#F5EFD8" stroke="#1F1F1F" stroke-width="3"/>
+<circle cx="1520" cy="780" r="14" fill="#F5EFD8" stroke="#1F1F1F" stroke-width="3"/>
+<circle cx="1520" cy="980" r="14" fill="#F5EFD8" stroke="#1F1F1F" stroke-width="3"/>
+<circle cx="1330" cy="980" r="14" fill="#F5EFD8" stroke="#1F1F1F" stroke-width="3"/>
+<circle cx="1425.0" cy="880.0" r="16" fill="#FAF6E8"/>
+<circle cx="1425.0" cy="880.0" r="14" fill="#2A2520" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1425.0" y="885.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">K</text>
+<g transform="translate(1425.0,998)">
+<rect x="-82" y="-12" width="164" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Petalguard Keep</text>
+</g>
+</g>
+<g class="poi" data-id="garrison" data-name="Petalguard Garrison" data-npc="" data-tooltip="Petalguard HQ. Heavily staffed; barracks and armory." data-services="Petalguard command. Unaffiliated visitors not welcomed." data-district="castle" data-cat="guard" style="cursor:pointer">
+<rect x="1470" y="1005" width="145" height="80" fill="#A8987E" stroke="#1F1F1F" stroke-width="4" filter="url(#shadow)"/>
+<rect x="1480" y="1015" width="125" height="60" fill="#C4B690" stroke="#5A4226" stroke-width="2"/>
+<circle cx="1542.5" cy="1045.0" r="16" fill="#FAF6E8"/>
+<circle cx="1542.5" cy="1045.0" r="14" fill="#7C2A2A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1542.5" y="1050.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">G</text>
+<g transform="translate(1542.5,1103)">
+<rect x="-82" y="-12" width="164" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Petalguard Garrison</text>
+</g>
+</g>
+<g class="poi" data-id="admin" data-name="Administration Hall" data-npc="" data-tooltip="Civil records, tax office, royal proclamations." data-services="Permits, deeds, formal complaints (slow)." data-district="castle" data-cat="guard" style="cursor:pointer">
+<rect x="1445" y="675" width="105" height="60" fill="#D8C39A" stroke="#5A4226" stroke-width="3" filter="url(#shadow)"/>
+<line x1="1445" y1="705" x2="1550" y2="705" stroke="#5A4226" stroke-width="1"/>
+<circle cx="1497.5" cy="705.0" r="16" fill="#FAF6E8"/>
+<circle cx="1497.5" cy="705.0" r="14" fill="#7C2A2A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1497.5" y="710.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">G</text>
+<g transform="translate(1497.5,753)">
+<rect x="-82" y="-12" width="164" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Administration Hall</text>
+</g>
+</g>
+<g class="poi" data-id="sunspire" data-name="Sunspire Cathedral" data-npc="" data-tooltip="The city&#x27;s spiritual heart. A white spire visible from every district; the poor are never turned from its doors." data-services="Daily services. Sanctuary and blessing — the public face of Bastion&#x27;s faith." data-district="castle" data-cat="cathedral" style="cursor:pointer">
+<rect x="1175" y="690" width="110" height="175" fill="#D8C39A" stroke="#7B5A30" stroke-width="2" filter="url(#shadow)"/>
+<circle cx="1230.0" cy="777.5" r="16" fill="#FAF6E8"/>
+<circle cx="1230.0" cy="777.5" r="14" fill="#C2A23F" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1230.0" y="782.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">+</text>
+<g transform="translate(1230.0,883)">
+<rect x="-78" y="-12" width="156" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Sunspire Cathedral</text>
+</g>
+</g>
+<g class="poi" data-id="hall_records" data-name="The Hall of Records" data-npc="" data-tooltip="Bastion&#x27;s archive of births, deaths, deeds, and decrees — dusty, quiet, and revealing." data-services="Public records (slow). A patient researcher learns who owns what and who owes whom." data-district="castle" data-cat="records" style="cursor:pointer">
+<rect x="1300" y="670" width="120" height="85" fill="#D8C39A" stroke="#5A4226" stroke-width="3" filter="url(#shadow)"/>
+<line x1="1300" y1="712" x2="1420" y2="712" stroke="#5A4226" stroke-width="1"/>
+<circle cx="1360.0" cy="712.5" r="16" fill="#FAF6E8"/>
+<circle cx="1360.0" cy="712.5" r="14" fill="#6B5A3A" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1360.0" y="717.5" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">R</text>
+<g transform="translate(1360.0,773)">
+<rect x="-82" y="-12" width="164" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">The Hall of Records</text>
+</g>
+</g>
+<g class="poi" data-id="almshouses" data-name="Almshouses &amp; Healing-Houses" data-npc="" data-tooltip="Shelters, hospitals, and foundling homes along the inner ring — Bastion&#x27;s visible compassion." data-services="Illuminated menders heal regardless of pay; beds for the destitute. The city&#x27;s proof of its own virtue." data-district="castle" data-cat="shelter" style="cursor:pointer">
+<rect x="1160" y="890" width="145" height="110" fill="#D8C39A" stroke="#7B5A30" stroke-width="3" filter="url(#shadow)"/>
+<line x1="1166" y1="898" x2="1299" y2="898" stroke="#8E6B3A" stroke-width="2"/>
+<line x1="1166" y1="992" x2="1299" y2="992" stroke="#8E6B3A" stroke-width="2"/>
+<circle cx="1232.5" cy="945.0" r="16" fill="#FAF6E8"/>
+<circle cx="1232.5" cy="945.0" r="14" fill="#7C8480" stroke="#1F1F1F" stroke-width="2"/>
+<text x="1232.5" y="950.0" text-anchor="middle" font-family="Georgia, serif" font-size="16" font-weight="bold" fill="#FAF6E8">H</text>
+<g transform="translate(1232.5,1018)">
+<rect x="-114" y="-12" width="228" height="18" fill="rgba(248,240,210,0.9)" stroke="#8E7A4A" stroke-width="0.5" rx="2"/>
+<text x="0" y="2" text-anchor="middle" font-family="Georgia, serif" font-size="13" font-weight="bold" fill="#2A1F10">Almshouses &amp; Healing-Houses</text>
+</g>
+</g>
+</g>
+<g id="gates">
+<rect x="198" y="870" width="24" height="60" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<rect x="202"  y="874" width="16" height="52" fill="#EBD9A5"/>
+<circle cx="210" cy="866" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<circle cx="210" cy="934" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<rect x="1070" y="188" width="60" height="24" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<rect x="1074" y="192"  width="52" height="16" fill="#EBD9A5"/>
+<circle cx="1066" cy="200" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<circle cx="1134" cy="200" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<rect x="1070" y="1588" width="60" height="24" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<rect x="1074" y="1592"  width="52" height="16" fill="#EBD9A5"/>
+<circle cx="1066" cy="1600" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<circle cx="1134" cy="1600" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<rect x="2218" y="840" width="24" height="60" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<rect x="2222"  y="844" width="16" height="52" fill="#EBD9A5"/>
+<circle cx="2230" cy="836" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<circle cx="2230" cy="904" r="12" fill="#F5EFD8" stroke="#8E7A4A" stroke-width="2"/>
+<line x1="2216" y1="840" x2="2244" y2="900" stroke="#1F1F1F" stroke-width="4"/>
+<line x1="2216" y1="900" x2="2244" y2="840" stroke="#1F1F1F" stroke-width="4"/>
+</g>
+<g id="dlabels" pointer-events="none">
+<text x="255" y="404" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#2E3A40" stroke="#1F1F1F" stroke-width="0.6" letter-spacing="2">SALTSIDE</text>
+<text x="240" y="1174" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#E8D6A8" stroke="#1F1F1F" stroke-width="0.6" letter-spacing="2">ROTGUT ROW</text>
+<text x="1520" y="1184" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#4A3920" stroke="#1F1F1F" stroke-width="0.6" letter-spacing="2">HEARTHSIDE</text>
+<text x="740" y="374" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#3A2810" stroke="#1F1F1F" stroke-width="0.6" letter-spacing="2">THORNWALL</text>
+<text x="680" y="1184" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#1F1B18" stroke="#1F1F1F" stroke-width="0.6" letter-spacing="2">THE WILT</text>
+<text x="1830" y="364" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#3D2E10" stroke="#1F1F1F" stroke-width="0.6" letter-spacing="2">CREST</text>
+<text x="1268" y="1042" font-family="Georgia, serif" font-size="42" font-weight="bold" fill="#2A2520" stroke="#1F1F1F" stroke-width="0.6" letter-spacing="2">CITADEL</text>
+</g>
+<g id="gate-labels" pointer-events="none" font-family="Georgia, serif" font-size="18" font-weight="bold">
+<rect x="76" y="920" width="120" height="22" fill="rgba(248,240,210,0.92)" stroke="#8E7A4A" stroke-width="0.8" rx="2"/>
+<text x="80" y="938" fill="#1F1F1F">Harbor Gate</text>
+<rect x="1006" y="252" width="110" height="22" fill="rgba(248,240,210,0.92)" stroke="#8E7A4A" stroke-width="0.8" rx="2"/>
+<text x="1010" y="270" fill="#1F1F1F">North Gate</text>
+<rect x="1006" y="1546" width="110" height="22" fill="rgba(248,240,210,0.92)" stroke="#8E7A4A" stroke-width="0.8" rx="2"/>
+<text x="1010" y="1564" fill="#1F1F1F">South Gate</text>
+<rect x="2241" y="920" width="100" height="22" fill="rgba(248,240,210,0.92)" stroke="#8E7A4A" stroke-width="0.8" rx="2"/>
+<text x="2245" y="938" fill="#1F1F1F">East Gate</text>
+</g>
+<g id="ext-labels" pointer-events="none" font-family="Georgia, serif" font-style="italic" font-size="18" fill="#3A2E18">
+<text x="40" y="936">→ Rose Sea</text>
+<text x="1140" y="84">→ North Road (Mountains)</text>
+<text x="1140" y="1758">→ South Road (Swamp/Farms)</text>
+<text x="2245" y="922">→ Dead Road</text>
+</g>
+<g id="title">
+  <rect x="60" y="30" width="430" height="120" fill="rgba(245,234,200,0.92)" stroke="#8E6B3A" stroke-width="3" rx="4"/>
+  <text x="78" y="92" font-family="Georgia, serif" font-size="56" font-weight="bold" fill="#3A2810" letter-spacing="3">BASTION</text>
+  <text x="78" y="124" font-family="Georgia, serif" font-style="italic" font-size="22" fill="#5A4226">Capital of Rivella · Velflora TTRPG</text>
+</g>
+<g id="compass" transform="translate(2280,130)">
+  <circle r="70" fill="rgba(245,234,200,0.92)" stroke="#5A4226" stroke-width="3"/>
+  <polygon points="0,-60 12,0 0,60 -12,0" fill="#3A2810"/>
+  <polygon points="60,0 0,-12 -60,0 0,12" fill="#8E6B3A"/>
+  <text x="0" y="-46" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="18" fill="#FAF6E8">N</text>
+  <text x="0" y="56"  text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="18" fill="#3A2810">S</text>
+  <text x="48" y="6"  text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="18" fill="#3A2810">E</text>
+  <text x="-48" y="6" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="18" fill="#3A2810">W</text>
+</g>
+<g id="legend" transform="translate(60,1460)">
+<rect width="400" height="310" fill="rgba(245,234,200,0.95)" stroke="#5A4226" stroke-width="3" rx="4"/>
+<text x="14" y="32" font-family="Georgia, serif" font-size="22" font-weight="bold" fill="#3A2810">Legend</text>
+<circle cx="30" cy="70" r="9" fill="#8B4F2A" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="74" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">T</text>
+<text x="45" y="74" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Tavern / Inn</text>
+<circle cx="210" cy="70" r="9" fill="#5C2C1F" stroke="#1F1F1F" stroke-width="1"/>
+<text x="210" y="74" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">W</text>
+<text x="225" y="74" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Weapons</text>
+<circle cx="30" cy="98" r="9" fill="#494C56" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="102" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">A</text>
+<text x="45" y="102" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Armor</text>
+<circle cx="210" cy="98" r="9" fill="#3D6B4D" stroke="#1F1F1F" stroke-width="1"/>
+<text x="210" y="102" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">P</text>
+<text x="225" y="102" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Apothecary</text>
+<circle cx="30" cy="126" r="9" fill="#6B4F8E" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="130" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">L</text>
+<text x="45" y="130" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Luxury / Tailor</text>
+<circle cx="210" cy="126" r="9" fill="#7C2A2A" stroke="#1F1F1F" stroke-width="1"/>
+<text x="210" y="130" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">G</text>
+<text x="225" y="130" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Guard / Government</text>
+<circle cx="30" cy="154" r="9" fill="#1F1F1F" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="158" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">$</text>
+<text x="45" y="158" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Gambling / Pit</text>
+<circle cx="210" cy="154" r="9" fill="#5A8C4A" stroke="#1F1F1F" stroke-width="1"/>
+<text x="210" y="158" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">+</text>
+<text x="225" y="158" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Temple</text>
+<circle cx="30" cy="182" r="9" fill="#1F1F1F" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="186" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">X</text>
+<text x="45" y="186" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Barred / Off-limits</text>
+<circle cx="210" cy="182" r="9" fill="#5E5040" stroke="#1F1F1F" stroke-width="1"/>
+<text x="210" y="186" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">N</text>
+<text x="225" y="186" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Notice / Plaza</text>
+<circle cx="30" cy="210" r="9" fill="#2A2520" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="214" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">K</text>
+<text x="45" y="214" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Castle Keep</text>
+<circle cx="210" cy="210" r="9" fill="#C2A23F" stroke="#1F1F1F" stroke-width="1"/>
+<text x="210" y="214" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">+</text>
+<text x="225" y="214" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Cathedral</text>
+<circle cx="30" cy="238" r="9" fill="#6B5A3A" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="242" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">R</text>
+<text x="45" y="242" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Records / Archive</text>
+<circle cx="210" cy="238" r="9" fill="#7C8480" stroke="#1F1F1F" stroke-width="1"/>
+<text x="210" y="242" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">H</text>
+<text x="225" y="242" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Shelter / Almshouse</text>
+<circle cx="30" cy="266" r="9" fill="#2E3A40" stroke="#1F1F1F" stroke-width="1"/>
+<text x="30" y="270" text-anchor="middle" font-family="Georgia, serif" font-size="11" font-weight="bold" fill="#FAF6E8">U</text>
+<text x="45" y="270" font-family="Georgia, serif" font-size="14" fill="#1F1F1F">Undergrowth entry</text>
+</g>
+<g id="scale" transform="translate(2020,1720)">
+<rect width="340" height="50" fill="rgba(245,234,200,0.95)" stroke="#5A4226" stroke-width="2" rx="3"/>
+<rect x="15" y="30" width="70" height="10" fill="#1F1F1F" stroke="#1F1F1F" stroke-width="1"/>
+<rect x="85" y="30" width="70" height="10" fill="#FAF6E8" stroke="#1F1F1F" stroke-width="1"/>
+<rect x="155" y="30" width="70" height="10" fill="#1F1F1F" stroke="#1F1F1F" stroke-width="1"/>
+<rect x="225" y="30" width="70" height="10" fill="#FAF6E8" stroke="#1F1F1F" stroke-width="1"/>
+<text x="14" y="22" font-family="Georgia, serif" font-size="13" fill="#1F1F1F">0   ¼ mi   ½ mi   ¾ mi   1 mi</text>
+</g>
+</svg>
+    <div id="toolbar">
+      <button id="zoom-in">+ Zoom</button>
+      <button id="zoom-out">− Zoom</button>
+      <button id="zoom-reset">Reset</button>
+    </div>
+    <div id="tooltip"></div>
+  </div>
+  <aside id="side">
+    <h1>BASTION</h1>
+    <div class="sub">Capital of Rivella · Velflora TTRPG</div>
+
+    <input id="search" placeholder="Search NPC, location, district…" />
+    <div id="search-results"></div>
+
+    <div id="default-panel">
+      <h2>How to use</h2>
+      <p class="blurb">Click any building, plaza, or district to see who's there and what they offer.
+      Drag to pan; scroll or use the buttons to zoom.</p>
+
+      <h2>Districts</h2>
+      <ul class="poi-list" id="district-list"></ul>
+
+      <div class="footer">Surface map · Undergrowth and Propagator layers withheld.</div>
+    </div>
+
+    <div id="detail-panel" style="display:none">
+      <button id="back" style="background:none;color:var(--ink-dim);border:none;cursor:pointer;font-family:inherit;padding:0;margin-bottom:8px;">← back</button>
+      <div id="detail-content"></div>
+    </div>
+  </aside>
+</div>
+
+<script>
+const POI_DATA = {"anchor_sq": {"name": "Anchor Square", "npc": "", "tooltip": "Open cobblestone plaza just inside the Harbor Gate. Notice Board at center.", "services": "Public notice board, customs check, frequent crier announcements.", "district": "saltside", "cat": "notice"}, "harlow": {"name": "Harlow's Chandlery", "npc": "Maren Harlow", "tooltip": "Ship supplies; knows every captain that puts in.", "services": "Rope, lamp oil, sailcloth, pitch, ship's biscuit. Free local rumors with purchase.", "district": "saltside", "cat": "chandler"}, "salted_keel": {"name": "The Salted Keel", "npc": "Big Tomas", "tooltip": "Tavern. Dockworkers, gossip, watered ale.", "services": "Beer 1c. Bowl of stew 3c. Bunk in the back 1s.", "district": "saltside", "cat": "tavern"}, "pell_fish": {"name": "Pell's Fish Market", "npc": "Pell", "tooltip": "Open-air stalls. Fishmonger and waterfront intel.", "services": "Daily catch. Pell hears everything spoken on a pier.", "district": "saltside", "cat": "fish"}, "rusty_hook": {"name": "The Rusty Hook", "npc": "Casta Vane", "tooltip": "Info broker. Basement fighting pit. Discreet rooms.", "services": "Information 5\u201350 Nectar. Side-bets on the pit. No questions about the basement.", "district": "rotgut", "cat": "gambling"}, "silken_lantern": {"name": "Silken Lantern", "npc": "Madame Orla", "tooltip": "Brothel. Trades in favors as often as coin.", "services": "Companionship; secrets; debts owed in either direction.", "district": "rotgut", "cat": "luxury"}, "dregs": {"name": "The Dregs", "npc": "Wicket", "tooltip": "Black-market alchemist. No receipts. No questions.", "services": "Anything you couldn't buy at the Verdant Flask. Double the price.", "district": "rotgut", "cat": "alchemy"}, "bare_knuckle": {"name": "Bare Knuckle Row", "npc": "", "tooltip": "Dead-end alley with three small fight venues.", "services": "Cash bouts. House cut 20%. No magic, no weapons.", "district": "rotgut", "cat": "gambling"}, "thornwall_sq": {"name": "Thornwall Square", "npc": "", "tooltip": "Central market. Iron thorn-pattern fence. The City Notice Board.", "services": "Permanent stalls; daily criers; the Notice Board (job postings, bounties, reports of the missing).", "district": "thornwall", "cat": "notice"}, "brannick": {"name": "Brannick's Arms", "npc": "Hal Brannick", "tooltip": "Weaponsmith. Fair prices, good steel.", "services": "Common weapons at PHB price. Custom commissions take 1d4 days.", "district": "thornwall", "cat": "weapon"}, "ironhide": {"name": "Ironhide Outfitters", "npc": "Dessa Ironhide (Bestial \u2014 bear)", "tooltip": "Armorsmith. Bestial bear-folk; quiet, exacting.", "services": "Armor at PHB price. Repairs same-day. Will refuse jobs from anyone she doesn't like.", "district": "thornwall", "cat": "armor"}, "verdant_flask": {"name": "The Verdant Flask", "npc": "Aldric Moss", "tooltip": "Apothecary. Legitimate potions only.", "services": "Healing potions, antitoxin, basic alchemy. Will report unusual orders.", "district": "thornwall", "cat": "alchemy"}, "crossed_keys": {"name": "The Crossed Keys Inn", "npc": "Jorik & Maren Tallow", "tooltip": "Two-story inn. Retired adventurers; the best beds in Thornwall.", "services": "Room 8s/night. Hot meal 3s. Will hold messages and packages free of charge.", "district": "thornwall", "cat": "inn"}, "thorn_thread": {"name": "Thorn & Thread", "npc": "Syl (Faelari)", "tooltip": "Tailor. Faelari. Doesn't talk about home.", "services": "Custom garments, repairs, dyeing. Excellent work; cold demeanor.", "district": "thornwall", "cat": "tailor"}, "ashmore": {"name": "Ashmore's Curios", "npc": "Prof. Emery Ashmore", "tooltip": "Maps, oddities, eccentric scholar. Will talk your ear off.", "services": "Regional maps 5\u201350g. Trinkets. Free lecture with purchase.", "district": "thornwall", "cat": "scholar"}, "millstone": {"name": "Millstone Bakery", "npc": "Bren Millstone", "tooltip": "Best bread in Bastion. Quietly charitable.", "services": "Loaves 2c. Day-old bread free to those who ask politely.", "district": "hearthside", "cat": "bakery"}, "chapel_green": {"name": "Chapel of the Green", "npc": "Sister Wynn", "tooltip": "Open-air shrine. Healer, counselor, warm fire.", "services": "Free first aid. Donations welcomed. Will not turn anyone away.", "district": "hearthside", "cat": "temple"}, "ketter": {"name": "Ketter's Boarding House", "npc": "Old Ketter", "tooltip": "Cheap long-term lodging. Rooms by the week.", "services": "Bed 4s/week. Three meals 1g/week. No questions.", "district": "hearthside", "cat": "inn"}, "velvet_stone": {"name": "Velvet & Stone", "npc": "Lucien Ashford", "tooltip": "High-end tailor and jeweler. Insufferable. Excellent.", "services": "Bespoke garments 50g+. Jewelry by commission. Will name-drop relentlessly.", "district": "crest", "cat": "luxury"}, "gilded_rest": {"name": "The Gilded Rest", "npc": "Castellan Dore", "tooltip": "Finest inn in Bastion outside the castle.", "services": "Suite 5g/night. Private dining. The kind of place deals get made.", "district": "crest", "cat": "inn"}, "warden_hall": {"name": "Warden's Hall", "npc": "Capt. Lorna Vetch", "tooltip": "City Watch HQ. Capt. Vetch is honest \u2014 a possible ally.", "services": "File reports. Request escort. Bounties posted weekly.", "district": "crest", "cat": "guard"}, "ashvale_garden": {"name": "Ashvale Memorial Garden", "npc": "Bessa", "tooltip": "Manicured garden. Bessa tends it; she served the Ashvales of Withered Manor.", "services": "Open dawn\u2013dusk. Bessa knows old Ashvale secrets if you earn her trust.", "district": "crest", "cat": "garden"}, "dented_shield": {"name": "The Dented Shield", "npc": "Gorran", "tooltip": "Wilt tavern and social hub near the South Gate. Gorran knows who's gone missing.", "services": "Beer 1c. Stew 2c. Gorran keeps a list of names no one else writes down.", "district": "wilt", "cat": "tavern"}, "mara_mending": {"name": "Mara's Mending", "npc": "Mara", "tooltip": "Half-blind seamstress. Excellent repairs.", "services": "Patch & repair clothing/armor 5\u201320c. Half-price for the desperate.", "district": "wilt", "cat": "tailor"}, "shelter_w": {"name": "The Shelter", "npc": "", "tooltip": "Unmarked refuge run by the Chapel of the Green \u2014 a hot meal and a dry floor, no charge.", "services": "Last-resort beds for those who can't afford the Wilt's cheapest rooms; Sister Wynn's network, funded by quiet Hearthside donors.", "district": "wilt", "cat": "shelter"}, "labor_wall": {"name": "Day Labor Wall", "npc": "", "tooltip": "A stone wall near the South Gate where employers post the day's work notices. Crowded before dawn; empty by mid-morning.", "services": "Unskilled labor 1\u20133 Nectar/day. Where new arrivals end up if luck doesn't break.", "district": "wilt", "cat": "labor"}, "storm_drain": {"name": "South Gate Storm Drain", "npc": "", "tooltip": "A canonical Undergrowth entry \u2014 a grate that drops into the tunnels and on toward the deep cisterns.", "services": "Not a destination: a way down for those who know the grates.", "district": "wilt", "cat": "drain"}, "main_keep": {"name": "The Petalguard Keep", "npc": "The King", "tooltip": "Seat of the King, at the city's center and highest ground. White stone, four corner towers within the citadel wall.", "services": "Audiences by appointment. The Petalguard control all access.", "district": "castle", "cat": "castle"}, "garrison": {"name": "Petalguard Garrison", "npc": "", "tooltip": "Petalguard HQ. Heavily staffed; barracks and armory.", "services": "Petalguard command. Unaffiliated visitors not welcomed.", "district": "castle", "cat": "guard"}, "admin": {"name": "Administration Hall", "npc": "", "tooltip": "Civil records, tax office, royal proclamations.", "services": "Permits, deeds, formal complaints (slow).", "district": "castle", "cat": "guard"}, "sunspire": {"name": "Sunspire Cathedral", "npc": "", "tooltip": "The city's spiritual heart. A white spire visible from every district; the poor are never turned from its doors.", "services": "Daily services. Sanctuary and blessing \u2014 the public face of Bastion's faith.", "district": "castle", "cat": "cathedral"}, "hall_records": {"name": "The Hall of Records", "npc": "", "tooltip": "Bastion's archive of births, deaths, deeds, and decrees \u2014 dusty, quiet, and revealing.", "services": "Public records (slow). A patient researcher learns who owns what and who owes whom.", "district": "castle", "cat": "records"}, "almshouses": {"name": "Almshouses & Healing-Houses", "npc": "", "tooltip": "Shelters, hospitals, and foundling homes along the inner ring \u2014 Bastion's visible compassion.", "services": "Illuminated menders heal regardless of pay; beds for the destitute. The city's proof of its own virtue.", "district": "castle", "cat": "shelter"}};
+const DISTRICT_DATA = {"saltside": {"name": "Saltside", "blurb": "Working waterfront. Salt-stained planks, gulls, the smell of fish and tar.", "tone": "Functional, weather-beaten, never quiet.", "pois": ["anchor_sq", "harlow", "salted_keel", "pell_fish"]}, "rotgut": {"name": "Rotgut Row", "blurb": "Saltside's southern underbelly. Tighter alleys, fewer lanterns, the deals get worse the further in you go.", "tone": "Vice and shadow. Watch your purse.", "pois": ["rusty_hook", "silken_lantern", "dregs", "bare_knuckle"]}, "thornwall": {"name": "Thornwall", "blurb": "The commercial heart of Bastion \u2014 the great market ring wrapping the Citadel's north and west. Wide cobbled streets, awnings in red and gold, the Notice Board at the center.", "tone": "Prosperous, busy, the place every traveler ends up.", "pois": ["thornwall_sq", "brannick", "ironhide", "verdant_flask", "crossed_keys", "thorn_thread", "ashmore"]}, "castle": {"name": "Citadel District", "blurb": "Bastion's walled heart on the highest ground at the city's very center. The Sunspire Cathedral and the Petalguard Keep crown it; along the inner ring stand the Hall of Records and the almshouses and healing-houses that are the city's visible mercy. Power, piety, and charity side by side.", "tone": "Imposing. Power and dread \u2014 and the machinery of charity. Visible from anywhere in the city.", "pois": ["main_keep", "garrison", "admin", "sunspire", "hall_records", "almshouses"]}, "crest": {"name": "Crest", "blurb": "Wealthy. Ironwork gates, manicured gardens, arched windows. The streets climb west, up the hill toward the Citadel.", "tone": "Old money. Quiet, cool, slightly disdainful.", "pois": ["velvet_stone", "gilded_rest", "warden_hall", "ashvale_garden"]}, "hearthside": {"name": "Hearthside", "blurb": "Quiet residential streets in the Citadel's southern shadow. Two-story homes, small gardens, curving lanes that grew naturally rather than by design.", "tone": "Warm. The kind of street where neighbors know your name.", "pois": ["millstone", "chapel_green", "ketter"]}, "wilt": {"name": "The Wilt", "blurb": "Poor but swept clean. Day laborers, mended clothes, the Day Labor Wall crowded before dawn.", "tone": "Tired but holding on. The streets stay swept because someone insists they do.", "pois": ["dented_shield", "mara_mending", "shelter_w", "labor_wall", "storm_drain"]}};
+const NPC_INDEX = [{"npc": "Maren Harlow", "loc": "Harlow's Chandlery", "id": "harlow"}, {"npc": "Big Tomas", "loc": "The Salted Keel", "id": "salted_keel"}, {"npc": "Pell", "loc": "Pell's Fish Market", "id": "pell_fish"}, {"npc": "Casta Vane", "loc": "The Rusty Hook", "id": "rusty_hook"}, {"npc": "Madame Orla", "loc": "Silken Lantern", "id": "silken_lantern"}, {"npc": "Wicket", "loc": "The Dregs", "id": "dregs"}, {"npc": "Hal Brannick", "loc": "Brannick's Arms", "id": "brannick"}, {"npc": "Dessa Ironhide (Bestial \u2014 bear)", "loc": "Ironhide Outfitters", "id": "ironhide"}, {"npc": "Aldric Moss", "loc": "The Verdant Flask", "id": "verdant_flask"}, {"npc": "Jorik & Maren Tallow", "loc": "The Crossed Keys Inn", "id": "crossed_keys"}, {"npc": "Syl (Faelari)", "loc": "Thorn & Thread", "id": "thorn_thread"}, {"npc": "Prof. Emery Ashmore", "loc": "Ashmore's Curios", "id": "ashmore"}, {"npc": "Bren Millstone", "loc": "Millstone Bakery", "id": "millstone"}, {"npc": "Sister Wynn", "loc": "Chapel of the Green", "id": "chapel_green"}, {"npc": "Old Ketter", "loc": "Ketter's Boarding House", "id": "ketter"}, {"npc": "Lucien Ashford", "loc": "Velvet & Stone", "id": "velvet_stone"}, {"npc": "Castellan Dore", "loc": "The Gilded Rest", "id": "gilded_rest"}, {"npc": "Capt. Lorna Vetch", "loc": "Warden's Hall", "id": "warden_hall"}, {"npc": "Bessa", "loc": "Ashvale Memorial Garden", "id": "ashvale_garden"}, {"npc": "Gorran", "loc": "The Dented Shield", "id": "dented_shield"}, {"npc": "Mara", "loc": "Mara's Mending", "id": "mara_mending"}, {"npc": "The King", "loc": "The Petalguard Keep", "id": "main_keep"}];
+
+const svg = document.querySelector("#map-wrap svg");
+const tooltip = document.getElementById("tooltip");
+const sidePanel = document.getElementById("default-panel");
+const detailPanel = document.getElementById("detail-panel");
+const detailContent = document.getElementById("detail-content");
+
+// ---- Tooltip ----
+svg.addEventListener("mousemove", (e) => {
+  const t = e.target.closest(".poi, .district");
+  if (!t) { tooltip.style.display = "none"; return; }
+  let html = "";
+  if (t.classList.contains("poi")) {
+    const id = t.dataset.id;
+    const d = POI_DATA[id];
+    html = `<div class="t-name">${d.name}</div>` +
+           (d.npc ? `<div class="t-npc">${d.npc}</div>` : "") +
+           `<div>${d.tooltip}</div>`;
+  } else {
+    html = `<div class="t-name">${t.dataset.name}</div>` +
+           `<div>${t.dataset.blurb}</div>` +
+           `<div class="t-npc">${t.dataset.tone}</div>`;
+  }
+  tooltip.innerHTML = html;
+  const rect = document.getElementById("map-wrap").getBoundingClientRect();
+  tooltip.style.display = "block";
+  let tx = e.clientX - rect.left + 16;
+  let ty = e.clientY - rect.top + 16;
+  if (tx + 320 > rect.width) tx = e.clientX - rect.left - 320;
+  if (ty + 200 > rect.height) ty = e.clientY - rect.top - 200;
+  tooltip.style.left = tx + "px";
+  tooltip.style.top = ty + "px";
+});
+svg.addEventListener("mouseleave", () => tooltip.style.display = "none");
+
+// ---- Click → side panel ----
+svg.addEventListener("click", (e) => {
+  const poi = e.target.closest(".poi");
+  if (poi) { showPOI(poi.dataset.id); return; }
+  const dist = e.target.closest(".district");
+  if (dist) showDistrict(dist.id.replace("d-", ""));
+});
+
+function showDistrict(did) {
+  const d = DISTRICT_DATA[did];
+  if (!d) return;
+  detailContent.innerHTML = `
+    <h2>${d.name}</h2>
+    <p class="blurb"><em>${d.tone}</em></p>
+    <p>${d.blurb}</p>
+    <h3>Notable Locations</h3>
+    <ul class="poi-list">
+      ${d.pois.map(id => {
+        const p = POI_DATA[id];
+        return `<li onclick="showPOI('${id}')">${p.name}${p.npc ? `<br><span class="npc">${p.npc}</span>` : ""}</li>`;
+      }).join("")}
+    </ul>`;
+  sidePanel.style.display = "none";
+  detailPanel.style.display = "block";
+  highlightDistrict(did);
+}
+
+function showPOI(id) {
+  const p = POI_DATA[id];
+  if (!p) return;
+  detailContent.innerHTML = `
+    <h2>${p.name}</h2>
+    ${p.npc ? `<p><span class="badge">${p.cat}</span><strong>${p.npc}</strong></p>` : `<p><span class="badge">${p.cat}</span></p>`}
+    <p class="blurb">${p.tooltip}</p>
+    <h3>Services / Notes</h3>
+    <p>${p.services || "—"}</p>
+    <p style="font-size:12px;color:var(--ink-dim);">District: <a href="#" onclick="event.preventDefault();showDistrict('${p.district}')">${DISTRICT_DATA[p.district].name}</a></p>`;
+  sidePanel.style.display = "none";
+  detailPanel.style.display = "block";
+  highlightPOI(id);
+}
+
+function highlightDistrict(did) {
+  document.querySelectorAll(".district").forEach(el => {
+    el.classList.toggle("dim", el.id !== "d-" + did);
+  });
+  document.querySelectorAll(".poi").forEach(el => {
+    el.classList.toggle("dim", el.dataset.district !== did);
+  });
+}
+function highlightPOI(id) {
+  document.querySelectorAll(".district").forEach(el => el.classList.remove("dim"));
+  document.querySelectorAll(".poi").forEach(el => {
+    el.classList.toggle("dim", el.dataset.id !== id);
+  });
+}
+function clearHighlight() {
+  document.querySelectorAll(".district,.poi").forEach(el => el.classList.remove("dim"));
+}
+
+document.getElementById("back").onclick = () => {
+  sidePanel.style.display = "block";
+  detailPanel.style.display = "none";
+  clearHighlight();
+};
+
+// ---- District list in default panel ----
+const dlist = document.getElementById("district-list");
+Object.entries(DISTRICT_DATA).forEach(([did, d]) => {
+  const li = document.createElement("li");
+  li.innerHTML = `<strong>${d.name}</strong><br><span class="npc">${d.tone}</span>`;
+  li.onclick = () => showDistrict(did);
+  dlist.appendChild(li);
+});
+
+// ---- Search ----
+const search = document.getElementById("search");
+const results = document.getElementById("search-results");
+search.addEventListener("input", () => {
+  const q = search.value.trim().toLowerCase();
+  if (!q) { results.innerHTML = ""; return; }
+  const matches = [];
+  for (const [id, p] of Object.entries(POI_DATA)) {
+    if (p.name.toLowerCase().includes(q) || (p.npc && p.npc.toLowerCase().includes(q))) {
+      matches.push({kind:"poi", id, label:p.name, sub:p.npc||""});
+    }
+  }
+  for (const [id, d] of Object.entries(DISTRICT_DATA)) {
+    if (d.name.toLowerCase().includes(q)) {
+      matches.push({kind:"district", id, label:d.name, sub:""});
+    }
+  }
+  results.innerHTML = matches.length === 0 ? '<p style="color:var(--ink-dim);font-size:13px;">No matches.</p>' :
+    `<ul class="poi-list">${matches.slice(0,12).map(m =>
+      `<li onclick="show${m.kind==='poi'?'POI':'District'}('${m.id}')">${m.label}${m.sub?`<br><span class="npc">${m.sub}</span>`:''}</li>`
+    ).join("")}</ul>`;
+});
+
+// ---- Pan & zoom ----
+const vb = svg.viewBox.baseVal;
+let viewport = {x: vb.x, y: vb.y, w: vb.width, h: vb.height};
+const VB_W = vb.width, VB_H = vb.height;
+function applyVB() { svg.setAttribute("viewBox", `${viewport.x} ${viewport.y} ${viewport.w} ${viewport.h}`); }
+
+let dragging = false, dragStart = null;
+svg.addEventListener("mousedown", (e) => {
+  if (e.target.closest(".poi, .district")) return;
+  dragging = true; dragStart = {x: e.clientX, y: e.clientY, vx: viewport.x, vy: viewport.y};
+  svg.classList.add("dragging");
+});
+window.addEventListener("mousemove", (e) => {
+  if (!dragging) return;
+  const r = svg.getBoundingClientRect();
+  const sx = viewport.w / r.width;
+  const sy = viewport.h / r.height;
+  viewport.x = dragStart.vx - (e.clientX - dragStart.x) * sx;
+  viewport.y = dragStart.vy - (e.clientY - dragStart.y) * sy;
+  applyVB();
+});
+window.addEventListener("mouseup", () => { dragging = false; svg.classList.remove("dragging"); });
+
+svg.addEventListener("wheel", (e) => {
+  e.preventDefault();
+  const factor = e.deltaY > 0 ? 1.15 : 1/1.15;
+  zoomAt(e.clientX, e.clientY, factor);
+}, {passive:false});
+
+function zoomAt(cx, cy, factor) {
+  const r = svg.getBoundingClientRect();
+  const px = (cx - r.left) / r.width;
+  const py = (cy - r.top) / r.height;
+  const wx = viewport.x + px * viewport.w;
+  const wy = viewport.y + py * viewport.h;
+  let nw = viewport.w * factor;
+  let nh = viewport.h * factor;
+  nw = Math.max(VB_W * 0.15, Math.min(VB_W * 2, nw));
+  nh = Math.max(VB_H * 0.15, Math.min(VB_H * 2, nh));
+  viewport.w = nw; viewport.h = nh;
+  viewport.x = wx - px * nw;
+  viewport.y = wy - py * nh;
+  applyVB();
+}
+
+document.getElementById("zoom-in").onclick = () => {
+  const r = svg.getBoundingClientRect();
+  zoomAt(r.left + r.width/2, r.top + r.height/2, 1/1.3);
+};
+document.getElementById("zoom-out").onclick = () => {
+  const r = svg.getBoundingClientRect();
+  zoomAt(r.left + r.width/2, r.top + r.height/2, 1.3);
+};
+document.getElementById("zoom-reset").onclick = () => {
+  viewport = {x:0, y:0, w:VB_W, h:VB_H}; applyVB();
+};
+</script>
+</body>
+</html>
